@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resultados — Eco-Clean</title>
+    <style>body{font-family:Arial;margin:2rem} pre{background:#f6f8fa;padding:0.5rem}</style>
+  </head>
+  <body>
+    <h1>Resultados de la simulación (placeholder)</h1>
+
+    {% if filas %}
+      <h2>Filas del vector de estado ({{ filas|length }})</h2>
+      <ul>
+      {% for fila in filas %}
+        <li>
+          <strong>Iteración {{ fila.iteracion }} — Hora {{ fila.hora_simulada }}:</strong>
+          <pre>{{ fila | tojson(indent=2) }}</pre>
+        </li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay resultados para mostrar.</p>
+    {% endif %}
+
+    <p><a href="/">Volver al índice</a></p>
+  </body>
+</html>

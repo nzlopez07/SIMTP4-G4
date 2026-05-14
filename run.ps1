@@ -4,7 +4,7 @@ $venvDir = "$PWD\.venv"
 $pythonPath = Join-Path $venvDir "Scripts\python.exe"
 
 if (-not (Test-Path $pythonPath)) {
-    Write-Host "Virtual environment not found - creating .venv..."
+    Write-Host "Virtual environment no encontrado - creando .venv..."
     python -m venv .venv
     $pythonPath = Join-Path $venvDir "Scripts\python.exe"
 }

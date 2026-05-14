@@ -6,6 +6,8 @@ class Evento:
 
     def __init__(self, tiempo=0):
         self.tiempo = tiempo
+        self.RNDusado = None  # RND utilizado para generar el evento (si corresponde)
+        self.resultadoDecision = None  # Resultado de la decisión tomada (si corresponde)
 
     def procesar(self, motor):
         """Procesa el evento sobre el `motor` (implementación en el futuro)."""
