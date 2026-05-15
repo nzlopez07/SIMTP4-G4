@@ -11,7 +11,7 @@ fi
 
 echo "Installing/ upgrading pip and requirements from Docs/requirements.txt..."
 $PYTHON -m pip install --upgrade pip
-$PYTHON -m pip install -r Docs/requirements.txt
+$PYTHON -m pip install -r documentacion/requirements.txt
 
 echo "Starting application (Flask)..."
 $PYTHON main.py
