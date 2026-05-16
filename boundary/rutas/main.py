@@ -8,17 +8,11 @@ bp = Blueprint("main", __name__)
 
 @bp.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("pagina-inicio.html")
 
-
-@bp.route("/api/status")
-def status():
-    return jsonify({"status": "ok"})
-
-
-@bp.route("/simulacion")
+@bp.route("/formulario")
 def simulacion_form():
-    return render_template("simulacion.html")
+    return render_template("formulario-simulacion.html")
 
 
 @bp.route("/simulacion/ejecutar", methods=["POST"])
@@ -57,13 +51,4 @@ def simulacion_ejecutar():
 def simulacion_resultados():
     # ruta placeholder: sin almacenamiento persistente no hay resultados previos
     return render_template("resultados.html", filas=[])
-
-
-@bp.route("/simulacion/estadisticas")
-def simulacion_estadisticas():
-    registro = RegistroEstadisticas()
-    return jsonify({
-        "clientesPerdidos": registro.clientesPerdidos,
-        "tiempoTunelBloqueado": registro.tiempoTunelBloqueado,
-        "tiempoHorasExtras": registro.tiempoHorasExtras,
-    })
+    # El resultado no debera encontrarse aparte de las estadisticas. Las estadisticas se mostraran encima de la tabla. A su vez habra un boton para copiar todos los datos de las variables automaticamente.

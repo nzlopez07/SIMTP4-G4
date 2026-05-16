@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block navbar_back %}
+<div class="navbar-actions">
+  <a href="{{ url_for('main.index') }}" class="btn btn-nav">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+    Inicio
+  </a>
+  <a href="{{ url_for('main.simulacion_form') }}" class="btn btn-nav-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+    Nueva simulación
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-title">Simulación</h1>
+    <p class="page-subtitle">Resultados de la simulacion de montecarlo</p>
+  </div>
+</div>
+
+<body>
+  {% if filas %}
+  <h2>Filas del vector de estado ({{ filas|length }})</h2>
+  <ul>
+    {% for fila in filas %}
+    <li>
+      <strong>Iteración {{ fila.iteracion }} — Hora {{ fila.hora_simulada }}:</strong>
+      <pre>{{ fila | tojson(indent=2) }}</pre>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No hay resultados para mostrar.</p>
+  {% endif %}
+
+</body>
+{% endblock %}
