@@ -18,10 +18,8 @@ def simulacion_form():
 @bp.route("/simulacion/ejecutar", methods=["POST"])
 def simulacion_ejecutar():
     # leer parámetros del formulario (sin validación por ahora)
-    tiempo = request.form.get("tiempo")
-    max_iter = request.form.get("max_iteraciones")
-    i = request.form.get("i")
-    j = request.form.get("j")
+    hora_inicio = request.form.get("hora_inicio")
+    hora_fin = request.form.get("hora_fin")
     seed = request.form.get("seed")
 
     # crear motor con vector y generador por defecto
@@ -29,19 +27,15 @@ def simulacion_ejecutar():
 
     # generar una fila de ejemplo para que la vista muestre algo
     fila = FilaVectorEstado()
-    try:
-        fila.iteracion = int(max_iter) if max_iter else 1
-    except Exception:
-        fila.iteracion = 1
-    fila.hora_simulada = float(tiempo) if tiempo else 0.0
-    fila.evento_simulado = "EjemploInicio"
-    fila.agregar_variable_auxiliar("param_i", i)
-    fila.agregar_variable_auxiliar("param_j", j)
+    fila.iteracion = 1
+    fila.hora_simulada = 0.0   
+    motor.agregar_fila_vector(fila)
+    fila.evento_simulado = "InicioSimulacion"
+    fila.agregar_variable_auxiliar("hora_inicio", hora_inicio)
+    fila.agregar_variable_auxiliar("hora_fin", hora_fin)
     if seed:
         fila.agregar_rnd("seed", seed)
-
-    motor.agregar_fila_vector(fila)
-
+        
     # renderizar resultados inmediatamente (sin persistencia por ahora)
     filas_serializables = [f.como_dict() for f in motor.vector_estado.filas]
     return render_template("resultados.html", filas=filas_serializables)
