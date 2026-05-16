@@ -1,14 +1,9 @@
-"""Generador aleatorio centralizado (esqueleto)."""
+from .generador_aleatorio import GeneradorAleatorio
+from .generador_uniforme import GeneradorUniforme
+from .generador_exponencial import GeneradorExponencial
 
-
-class GeneradorAleatorio:
-    """Centraliza la generación de números aleatorios."""
-
-    def __init__(self, seed=None):
-        self.seed = seed
-
-    def generar_uniforme(self):
-        raise NotImplementedError
-
-    def generar_exponencial(self, media):
-        raise NotImplementedError
+__all__ = [
+    "GeneradorAleatorio",
+    "GeneradorUniforme",
+    "GeneradorExponencial",
+]
