@@ -1,7 +1,7 @@
 """Esqueleto del Motor de Simulación."""
 
 from ..estadisticas import VectorEstado, RegistroEstadisticas
-from ..randoms import GeneradorAleatorio
+from ..randoms import GeneradorAleatorio, GeneradorUniforme, GeneradorExponencial
 
 
 class MotorSimulacion:
@@ -12,9 +12,9 @@ class MotorSimulacion:
     instancias por defecto.
     """
 
-    def __init__(self, generador=None, vector_estado=None):
+    def __init__(self, generador:GeneradorAleatorio=None, vector_estado=None): # no estoy segura que tan correcto es pasarle el generador al motor como inicializador
         # inyección de dependencias: generador de números y vector de estado
-        self.generador = generador if generador is not None else GeneradorAleatorio()
+        self.generador = generador
         self.vector_estado = vector_estado if vector_estado is not None else VectorEstado()
 
         # registro de métricas separado
