@@ -1,4 +1,3 @@
-from simulacion.randoms.generador_aleatorio import GeneradorAleatorio
 from simulacion.estadisticas.vector_estado import VectorEstado
 from simulacion.estadisticas.registro_estadisticas import RegistroEstadisticas
 from simulacion.eventos import Evento, EventoLlegada, EventoFinLavado, EventoFinAspirado
