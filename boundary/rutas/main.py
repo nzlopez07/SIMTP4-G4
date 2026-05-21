@@ -17,7 +17,6 @@ def simulacion_form():
 
 @bp.route("/simulacion/ejecutar", methods=["POST"])
 def simulacion_ejecutar():
-    hora_inicio = request.form.get("hora_inicio", "").strip()
     hora_fin    = request.form.get("hora_fin",    "").strip()
     cant_sim    = request.form.get("cant_sim",    "").strip()
     seed        = request.form.get("seed",        "").strip()
@@ -27,14 +26,15 @@ def simulacion_ejecutar():
         return render_template(
             "formulario-simulacion.html",
             error="Debés completar al menos uno de los campos: «Horario hasta» o «Cantidad de simulaciones».",
-            hora_inicio=hora_inicio or "09:00:00",
-            hora_fin=hora_fin,
+            hora_fin=hora_fin, ##String
             cant_sim=cant_sim,
             seed=seed,
         )
 
     # crear motor con vector y generador por defecto
-    motor = MotorSimulacion()
+    ## A lo sumo guardar la seed y pasársela por separado al motor para que la use en su generador???
+    ## O pasarle el generador previamente creado acá??
+    motor = MotorSimulacion(hora_fin, cant_sim, seed)
 
     # generar una fila de ejemplo para que la vista muestre algo
     fila = FilaVectorEstado()

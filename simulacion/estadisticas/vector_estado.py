@@ -75,3 +75,6 @@ class VectorEstado:
 
     def __iter__(self):
         return iter(self.filas)
+    
+
+    ##Pendiente a decidir según lo que diga el profe
