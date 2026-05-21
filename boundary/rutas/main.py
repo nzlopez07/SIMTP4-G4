@@ -34,7 +34,7 @@ def simulacion_ejecutar():
     # crear motor con vector y generador por defecto
     ## A lo sumo guardar la seed y pasársela por separado al motor para que la use en su generador???
     ## O pasarle el generador previamente creado acá??
-    motor = MotorSimulacion(hora_fin, cant_sim, seed)
+    motor = MotorSimulacion(seed, hora_fin, cant_sim)
 
     # generar una fila de ejemplo para que la vista muestre algo
     fila = FilaVectorEstado()

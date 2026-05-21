@@ -4,6 +4,7 @@ from simulacion.estadisticas.registro_estadisticas import RegistroEstadisticas
 from simulacion.eventos import Evento, EventoLlegada, EventoFinLavado, EventoFinAspirado
 from simulacion.motor.calendario_eventos import CalendarioEventos
 
+import random
 class MotorSimulacion:
     """Núcleo que controlará la simulación.
 
@@ -12,10 +13,18 @@ class MotorSimulacion:
     instancias por defecto.
     """
 
-    def __init__(self, generador:GeneradorAleatorio=None, vector_estado=None): # no estoy segura que tan correcto es pasarle el generador al motor como inicializador
+    def __init__(self, seed, vector_estado=None): # no estoy segura que tan correcto es pasarle el generador al motor como inicializador
         # inyección de dependencias: generador de números y vector de estado
-        self.seed 
-        self.generador = generador(seed)
+        
+        # self.seed = seed
+        # No hace falta que el gestor guarde la seed, con hacer random.seed queda seteada
+        # Si seed = None => no se rompe, usara de seed otra cosa (reloj del sistema por ejemplo)
+        if seed is None or isinstance(seed, int):
+            random.seed(seed)
+
+        # self.generador = generador(seed)
+
+        
         self.vector_estado = vector_estado if vector_estado is not None else VectorEstado()
 
         # registro de métricas separado
@@ -39,3 +48,6 @@ class MotorSimulacion:
         calendario de eventos y generará filas para el vector de estado.
         """
         raise NotImplementedError
+    
+    def generarRND(self):
+        return random.random()
