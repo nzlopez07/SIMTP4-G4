@@ -2,10 +2,9 @@ from abc import ABC, abstractmethod
 class Evento:
     """Clase base para eventos."""
 
-    def __init__(self, tiempo=0):
+    def __init__(self, tiempo, nombre):
         self.tiempo = tiempo
-        self.RNDusado = None  # RND utilizado para generar el evento (si corresponde)
-        self.resultadoDecision = None  # Resultado de la decisión tomada (si corresponde)
+        self.nombre = nombre
 
     def __lt__(self, otroEvento):
         """Permite comparar eventos por su tiempo para ordenarlos en el calendario."""

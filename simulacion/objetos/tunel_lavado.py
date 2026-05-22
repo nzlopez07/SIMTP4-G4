@@ -1,12 +1,13 @@
 class TunelLavado:
     """Recurso que representa el túnel de lavado."""
     def __init__(self):
-        self.estado = None  # Libre | Ocupado | Bloqueado (se puede hacer un patron de estado para si esta libre ocupado o bloqueado y generar las funciones esLibre esOcupado etc)
+        self.estado = "Libre"  # Libre | Ocupado | Bloqueado (se puede hacer un patron de estado para si esta libre ocupado o bloqueado y generar las funciones esLibre esOcupado etc)
         self.auto_actual: Auto = None  # id del auto
 
     def esta_libre(self):
         """Indica si el túnel de lavado está libre."""
-        return self.auto_actual is None and self.estado != "Bloqueado"
+        # return self.auto_actual is None and self.estado != "Bloqueado"
+        return self.estado == "Libre"
     
     def esta_bloqueado(self):
         """Indica si el túnel de lavado está bloqueado."""

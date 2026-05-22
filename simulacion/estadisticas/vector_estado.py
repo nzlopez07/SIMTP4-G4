@@ -1,4 +1,5 @@
 """Estructuras para el vector de estado de la simulacion."""
+from collections import deque   # deque es una cola FIFO
 
 
 class FilaVectorEstado:
@@ -8,10 +9,33 @@ class FilaVectorEstado:
         self.iteracion = 0
         self.hora_simulada = 0.0
         self.evento_simulado = ""
-        self.proximos_eventos = []
+        
+        self.rndLlegada
+        self.tiempoLlegada
+        self.accionLlegada = "" # A<id> ingresa | A<id> se retira  (cliente perdido)
+        self.rndLavado
+        self.tiempoLavado
+        self.rndFlagAspirado
+        self.flagAspirado
+        self.rndAspirado1
+        self.tiempoAspirado1
+        self.rndAspirado2
+        self.tiempoAspirado2
+               
+        self.contadorAutos = 0  # este contador sirve para generar los id de los autos
+        self.colaAutos = 0
+        self.autos = deque()
+
+        self.clientesPerdidos = 0
+        self.tiempoHorasExtras = 0.0
+        self.tiempoTunelBloqueado = 0.0 # El porcentaje se calculará al final de la simulacion
+
+
+        # self.proximos_eventos = [] # Está el 'calendario' para esto
         self.objetos = {}
         self.variables_auxiliares = {}
-        self.rnd_usados = {}
+        
+        #self.rnd_usados = {} # No se usa, ya están los atributos rnd específicos
 
     def agregar_proximo_evento(self, evento):
         self.proximos_eventos.append(evento)

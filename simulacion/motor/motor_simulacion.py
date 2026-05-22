@@ -3,6 +3,7 @@ from simulacion.estadisticas.vector_estado import VectorEstado
 from simulacion.estadisticas.registro_estadisticas import RegistroEstadisticas
 from simulacion.eventos import Evento, EventoLlegada, EventoFinLavado, EventoFinAspirado
 from simulacion.motor.calendario_eventos import CalendarioEventos
+from objetos import TunelLavado
 
 import random
 class MotorSimulacion:
@@ -24,8 +25,10 @@ class MotorSimulacion:
 
         # self.generador = generador(seed)
 
-        
-        self.vector_estado = vector_estado if vector_estado is not None else VectorEstado()
+        # tunel de lavado
+        self.tunel = TunelLavado()
+
+        self.vector_estado = vector_estado if isinstance(vector_estado, VectorEstado) else VectorEstado()
 
         # registro de métricas separado
         self.registro = RegistroEstadisticas()
