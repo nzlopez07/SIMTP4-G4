@@ -1,21 +1,100 @@
 from simulacion.eventos.evento import Evento
-
+from ..estadisticas.vector_estado import FilaVectorEstado
+# importar GeneradorVariablesAleatorias
+from evento_llegada import EventoLlegada, EventoFinLavado
+from objetos import Auto
 class EventoLlegada(Evento):
     def __init__(self, tiempo=0):
-        super().__init__(tiempo)
+        super().__init__(tiempo, "Llegada")
 
-    def _validar_procesamiento(self, motor):
-        """Valida que el evento de llegada pueda ser procesado sobre el motor dado."""
-        pass # Implementar validaciones específicas para el evento de llegada
+    def ejecutar(self, motor, filaAnterior):
+        filaActual = self.copiarFila(filaAnterior)
+        filaActual.iteracion = filaAnterior.iteracion + 1
+        filaActual.hora_simulada = self.tiempo
+        filaActual.evento_simulado = self.nombre
+       
+        # Generar el nuevo auto
+        filaActual.contadorAutos = filaAnterior.contadorAutos + 1
+        id = filaActual.contadorAutos
+        auto = Auto(id, self.tiempo)  # El estado se asignará más adelante
 
-    def _ejecutar(self, motor):
-        """Ejecuta la lógica principal del evento de llegada sobre el motor."""
-        pass # Implementar la lógica específica del evento de llegada
+        
+        # validar que el reloj es menor a las 21:00
+        if self.tiempo > 21.0:
+            filaActual.accionLlegada = f"Fuera de horario"
+            
+            return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
 
-    def _generar_eventos(self, motor):
-        """Genera nuevos eventos en función del resultado del evento de llegada."""
-        pass # Implementar la generación de nuevos eventos según el tipo de evento de llegada
 
-    def _actualizar_estadisticas(self, motor):
-        """Actualiza las estadísticas del motor en función del resultado del evento de llegada."""
-        pass # Implementar la actualización de estadísticas según el tipo de evento de llegada
+        # validar que la cola de autos no esté llena (max 5)
+        # si está llena el cliente se retira (pierde)
+        # en caso contrario se genera el auto y agrega a la cola
+        if filaAnterior.colaAutos >= 5:
+            filaActual.accionLlegada = f"A{id} se retira"
+            filaActual.clientesPerdidos = filaAnterior.clientesPerdidos + 1
+            
+            return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
+        else:
+            filaActual.accionLlegada = f"A{id} ingresa"       
+
+
+        # Generar la nueva llegada
+        filaActual.rndLlegada = motor.generarRND()
+        #filaActual.tiempoLlegada = generador.tiempoLlegada(filaActual.rndLlegada) + self.tiempo
+
+        motor.calendario.agregar_evento(EventoLlegada(filaActual.tiempoLlegada))
+
+
+        # Generar evento fin lavado
+        if not motor.tunel.esta_libre():
+            # Si el túnel no está libre, el auto se agrega a la cola
+            filaActual.colaAutos = filaAnterior.colaAutos + 1
+            auto.estado = "EnCola"
+            filaActual.autos.append(auto)
+        else:
+            auto.estado = "EnLavado"
+            motor.tunel.ocupar(auto)
+
+            filaActual.rndLavado = motor.generarRND()
+            #filaActual.tiempoLavado = generador.tiempoLavado(filaActual.rndLavado) + self.tiempo
+            motor.calendario.agregar_evento(EventoFinLavado(filaActual.tiempoLavado))
+
+    
+
+
+        return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
+
+
+    def copiarFila(self, filaAnterior):
+        """" 
+        Copiar los valores necesarios de la fila anterior a la actual 
+        Datos que se tienen que copiar:
+            tiempoLavado   # si ya hay un evento finLavado ya creado
+            tiempoAspirado # si ya hay un evento finAspirado ya creado
+                
+            contadorAutos
+            colaAutos
+            autos
+
+            clientesPerdidos
+            tiempoHorasExtras
+            tiempoTunelBloqueado
+
+        Con esto se operará sobre la fila actual directamente, para de esa forma en caso de no requerir modificación
+        se mantendrán los mismos valores. Esto ahorrará if else y hará el código más limpio.
+        """
+
+        fila = FilaVectorEstado()
+        fila.tiempoLavado = filaAnterior.tiempoLavado
+        fila.tiempoAspirado1 = filaAnterior.tiempoAspirado1
+        fila.tiempoAspirado2 = filaAnterior.tiempoAspirado2
+
+        fila.contadorAutos = filaAnterior.contadorAutos
+        fila.colaAutos = filaAnterior.colaAutos
+        fila.autos = filaAnterior.autos
+
+        fila.clientesPerdidos = filaAnterior.clientesPerdidos
+        fila.tiempoHorasExtras = filaAnterior.tiempoHorasExtras
+        fila.tiempoTunelBloqueado = filaAnterior.tiempoTunelBloqueado
+
+        return fila
