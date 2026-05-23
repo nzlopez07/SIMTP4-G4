@@ -36,29 +36,6 @@ class FilaVectorEstado:
         self.puestoAspirado1: PuestoAspirado
         self.puestoAspirado2: PuestoAspirado
 
-        # self.proximos_eventos = [] # Está el 'calendario' para esto
-        self.objetos = {}
-        self.variables_auxiliares = {}
-        
-        #self.rnd_usados = {} # No se usa, ya están los atributos rnd específicos
-
-    def agregar_proximo_evento(self, evento):
-        self.proximos_eventos.append(evento)
-
-    def agregar_objeto(self, nombre, estado=None, atributos=None):
-        if atributos is None:
-            atributos = {}
-
-        self.objetos[nombre] = {
-            "estado": estado,
-            "atributos": atributos,
-        }
-
-    def agregar_variable_auxiliar(self, nombre, valor):
-        self.variables_auxiliares[nombre] = valor
-
-    def agregar_rnd(self, nombre, valor):
-        self.rnd_usados[nombre] = valor
 
     def como_dict(self):
         return {
