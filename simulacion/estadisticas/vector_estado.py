@@ -56,31 +56,27 @@ class VectorEstado:
         self.filas = []
 
     def agregar(self, fila):
-        self.filas.append(fila)
+        """
+        Con esto nos aseguramos que en memoria solo tendremos como máximo 2 vectores estados (Anterior y Actual)
+            filas[0] - vectorEstadoAnterior
+            filas[1] - vectorEstadoActual
+        """
+        if len(self.filas) <= 1:
+            return self.filas.append(fila)
 
-    def obtener(self, indice):
-        return self.filas[indice]
+        self.filas[0] = self.filas[1]
+        self.filas[1] = fila
 
-    def quitar(self, indice):
-        return self.filas.pop(indice)
+    def getAnterior(self):
+        if len(self.filas) == 0:
+            raise Exception("No hay ningún vector estado")
+        if len(self.filas) == 1:
+            raise Exception("Aún no existe vector estado anterior")
+        return self.filas[0]
 
-    def buscar(self, criterio): ##Acá criterio sería una lambda function que recibe una fila y devuelve True si cumple la condición de búsqueda
-        return [fila for fila in self.filas if criterio(fila)]
-
-    def buscar_por_iteracion(self, iteracion):
-        for fila in self.filas:
-            if fila.iteracion == iteracion:
-                return fila
-        return None
-
-    def limpiar(self):
-        self.filas.clear()
-
-    def __len__(self):
-        return len(self.filas)
-
-    def __iter__(self):
-        return iter(self.filas)
-    
-
-    ##Pendiente a decidir según lo que diga el profe
+    def getActual(self):
+        if len(self.filas) == 0:
+            raise Exception("No hay ningún vector estado")
+        if len(self.filas) == 1:
+            return self.filas[0]
+        return self.filas[1]
