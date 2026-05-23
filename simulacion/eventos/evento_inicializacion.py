@@ -3,7 +3,7 @@ from evento import Evento
 from evento_llegada import EventoLlegada
 from simulacion.estadisticas import FilaVectorEstado
 from simulacion.objetos import TunelLavado, PuestoAspirado
-# importar GeneradorVariablesAleatorias
+from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 
 
 class EventoInicializacion(Evento):
@@ -21,10 +21,13 @@ class EventoInicializacion(Evento):
         primera_fila.puestoAspirado1 = PuestoAspirado(1)
         primera_fila.puestoAspirado2 = PuestoAspirado(2)
 
+
+        generador = GestorVariablesAleatorias()
+
         # Generar un RND para la llegada del primer auto
         primera_fila.rndLlegada = motor.generarRND()
         # Calcular el tiempo de llegada del primer auto | el generador retorna un timedelta
-        #primera_fila.tiempoLlegada = self.tiempo + generador.tiempoLlegada(primera_fila.rndLlegada)
+        primera_fila.tiempoLlegada = self.tiempo + generador.tiempoLlegada(primera_fila.rndLlegada)
 
         # Agregar el evento a la cola
         motor.calendario.agregar_evento(EventoLlegada(primera_fila.tiempoLlegada))

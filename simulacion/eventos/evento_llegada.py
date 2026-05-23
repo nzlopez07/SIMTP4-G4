@@ -4,7 +4,7 @@ from evento import Evento
 from evento_fin_lavado import EventoFinLavado
 
 from simulacion.estadisticas import FilaVectorEstado
-# importar GeneradorVariablesAleatorias
+from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 from simulacion.objetos import Auto
 
 
@@ -43,9 +43,11 @@ class EventoLlegada(Evento):
             filaActual.accionLlegada = f"A{id} ingresa"       
 
 
+        generador = GestorVariablesAleatorias()
+
         # Generar la nueva llegada
         filaActual.rndLlegada = motor.generarRND()
-        #filaActual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(filaActual.rndLlegada)
+        filaActual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(filaActual.rndLlegada)
 
         motor.calendario.agregar_evento(EventoLlegada(filaActual.tiempoLlegada))
 
