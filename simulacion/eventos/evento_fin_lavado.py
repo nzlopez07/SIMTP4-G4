@@ -1,4 +1,4 @@
-from simulacion.eventos.evento import Evento
+from evento import Evento
 class EventoFinLavado(Evento):
     def __init__(self, tiempo=0):
         super().__init__(tiempo)

@@ -3,7 +3,7 @@ class PuestoAspirado:
     def __init__(self, id):
         self.id = id
         self.estado = "Libre"  # Libre | Ocupado
-        self.auto_actual: Auto = None  # id del auto que determina si esta libre o ocupado
+        self.auto_actual: Auto = None
     
     def esta_libre(self):
         """Indica si el puesto de aspirado está libre."""

@@ -1,8 +1,9 @@
-from simulacion.eventos.evento import Evento
+from evento import Evento
 
 class EventoFinAspirado(Evento):
     def __init__(self, tiempo=0):
         super().__init__(tiempo)
+        self.puesto     # id del puesto de dicho evento (1 o 2)
 
     def _validar_procesamiento(self, motor):
         """Valida que el evento de fin de aspirado pueda ser procesado sobre el motor dado."""

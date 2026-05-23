@@ -24,8 +24,7 @@ class MotorSimulacion:
 
         # self.generador = generador(seed)
 
-        
-        self.vector_estado = vector_estado if vector_estado is not None else VectorEstado()
+        self.vector_estado = vector_estado if isinstance(vector_estado, VectorEstado) else VectorEstado()
 
         # registro de métricas separado
         self.registro = RegistroEstadisticas()
