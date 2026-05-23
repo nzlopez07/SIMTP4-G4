@@ -1,8 +1,12 @@
+import datetime
+
+
 class TunelLavado:
     """Recurso que representa el túnel de lavado."""
     def __init__(self):
         self.estado = "Libre"  # Libre | Ocupado | Bloqueado (se puede hacer un patron de estado para si esta libre ocupado o bloqueado y generar las funciones esLibre esOcupado etc)
         self.auto_actual: Auto = None  # id del auto
+        self.horaInicioBloqueado
 
     def esta_libre(self):
         """Indica si el túnel de lavado está libre."""

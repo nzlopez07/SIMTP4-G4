@@ -1,6 +1,6 @@
 class PuestoAspirado:
     """Recurso que representa un puesto de aspirado."""
-    def __init__(self):
+    def __init__(self, id):
         self.id = None 
         self.auto_actual: Auto = None  # id del auto que determina si esta libre o ocupado
     

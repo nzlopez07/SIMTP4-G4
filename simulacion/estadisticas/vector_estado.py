@@ -1,6 +1,8 @@
 """Estructuras para el vector de estado de la simulacion."""
 from collections import deque   # deque es una cola FIFO
 
+from simulacion.objetos import TunelLavado, PuestoAspirado
+
 
 class FilaVectorEstado:
     """Representa una fila del vector de estado de la simulacion."""
@@ -30,6 +32,9 @@ class FilaVectorEstado:
         self.tiempoHorasExtras = 0.0
         self.tiempoTunelBloqueado = 0.0 # El porcentaje se calculará al final de la simulacion
 
+        self.tunel: TunelLavado
+        self.puestoAspirado1: PuestoAspirado
+        self.puestoAspirado2: PuestoAspirado
 
         # self.proximos_eventos = [] # Está el 'calendario' para esto
         self.objetos = {}

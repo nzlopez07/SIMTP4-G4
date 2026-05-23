@@ -1,10 +1,15 @@
-from simulacion.eventos.evento import Evento
-from ..estadisticas.vector_estado import FilaVectorEstado
+from datetime import datetime, time
+
+from evento import Evento
+from evento_fin_lavado import EventoFinLavado
+
+from simulacion.estadisticas import FilaVectorEstado
 # importar GeneradorVariablesAleatorias
-from evento_llegada import EventoLlegada, EventoFinLavado
-from objetos import Auto
+from simulacion.objetos import Auto
+
+
 class EventoLlegada(Evento):
-    def __init__(self, tiempo=0):
+    def __init__(self, tiempo: datetime):
         super().__init__(tiempo, "Llegada")
 
     def ejecutar(self, motor, filaAnterior):
@@ -20,7 +25,7 @@ class EventoLlegada(Evento):
 
         
         # validar que el reloj es menor a las 21:00
-        if self.tiempo > 21.0:
+        if self.tiempo.time() > time(21,0,0):
             filaActual.accionLlegada = f"Fuera de horario"
             
             return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
@@ -40,26 +45,24 @@ class EventoLlegada(Evento):
 
         # Generar la nueva llegada
         filaActual.rndLlegada = motor.generarRND()
-        #filaActual.tiempoLlegada = generador.tiempoLlegada(filaActual.rndLlegada) + self.tiempo
+        #filaActual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(filaActual.rndLlegada)
 
         motor.calendario.agregar_evento(EventoLlegada(filaActual.tiempoLlegada))
 
 
         # Generar evento fin lavado
-        if not motor.tunel.esta_libre():
+        if not filaAnterior.tunel.esta_libre():
             # Si el túnel no está libre, el auto se agrega a la cola
             filaActual.colaAutos = filaAnterior.colaAutos + 1
             auto.estado = "EnCola"
             filaActual.autos.append(auto)
         else:
             auto.estado = "EnLavado"
-            motor.tunel.ocupar(auto)
+            filaAnterior.tunel.ocupar(auto)
 
             filaActual.rndLavado = motor.generarRND()
-            #filaActual.tiempoLavado = generador.tiempoLavado(filaActual.rndLavado) + self.tiempo
+            #filaActual.tiempoLavado = self.tiempo + generador.tiempoLavado(filaActual.rndLavado)
             motor.calendario.agregar_evento(EventoFinLavado(filaActual.tiempoLavado))
-
-    
 
 
         return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
@@ -70,9 +73,8 @@ class EventoLlegada(Evento):
         Copiar los valores necesarios de la fila anterior a la actual 
         Datos que se tienen que copiar:
             tiempoLavado   # si ya hay un evento finLavado ya creado
-            tiempoAspirado # si ya hay un evento finAspirado ya creado
+            tiempoAspirado 1 y 2    # si ya hay un evento finAspirado ya creado
                 
-            contadorAutos
             colaAutos
             autos
 
@@ -80,21 +82,28 @@ class EventoLlegada(Evento):
             tiempoHorasExtras
             tiempoTunelBloqueado
 
+            tunel
+            puestoAspirado 1 y 2
+
         Con esto se operará sobre la fila actual directamente, para de esa forma en caso de no requerir modificación
         se mantendrán los mismos valores. Esto ahorrará if else y hará el código más limpio.
         """
 
         fila = FilaVectorEstado()
+
         fila.tiempoLavado = filaAnterior.tiempoLavado
         fila.tiempoAspirado1 = filaAnterior.tiempoAspirado1
         fila.tiempoAspirado2 = filaAnterior.tiempoAspirado2
 
-        fila.contadorAutos = filaAnterior.contadorAutos
         fila.colaAutos = filaAnterior.colaAutos
         fila.autos = filaAnterior.autos
 
         fila.clientesPerdidos = filaAnterior.clientesPerdidos
         fila.tiempoHorasExtras = filaAnterior.tiempoHorasExtras
         fila.tiempoTunelBloqueado = filaAnterior.tiempoTunelBloqueado
+
+        fila.tunel = filaAnterior.tunel
+        fila.puestoAspirado1 = filaAnterior.puestoAspirado1
+        fila.puestoAspirado2 = filaAnterior.puestoAspirado2
 
         return fila
