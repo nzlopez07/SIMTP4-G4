@@ -1,18 +1,22 @@
 from math import log
+from datetime import timedelta
 
 
 class GestorVariablesAleatorias():
-    def tiempoLlegada(rnd):
-        return -12 * log(1 - rnd)
+    def tiempoLlegada(self, rnd):
+        duracion = -12 * log(1 - rnd)
+        return timedelta(seconds=round(duracion * 60))
     
-    def tiempoLavado(rnd):
+    def tiempoLavado(self, rnd):
         # 10 + rnd * (15 - 10)
-        return 10 + rnd * (5)
+        duracion = 10 + rnd * (5)
+        return timedelta(seconds=round(duracion * 60))
     
-    def tiempoAspirado(rnd):
-        return -20 * log(1 - rnd)
+    def tiempoAspirado(self, rnd):
+        duracion = -20 * log(1 - rnd)
+        return timedelta(seconds=round(duracion * 60))
     
-    def aspirado(rnd):
+    def aspirado(self, rnd):
         # aspirado 0 a 0.199 | no aspirado 0.2 a 0.999
         if rnd < 0.2:
             return True
