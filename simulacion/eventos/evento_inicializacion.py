@@ -1,6 +1,6 @@
 from datetime import datetime, time
-from evento import Evento
-from evento_llegada import EventoLlegada
+from simulacion.eventos.evento import Evento
+from simulacion.eventos.evento_llegada import EventoLlegada
 from simulacion.estadisticas import FilaVectorEstado
 from simulacion.objetos import TunelLavado, PuestoAspirado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias

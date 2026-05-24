@@ -1,7 +1,7 @@
 from datetime import datetime, time
 
-from evento import Evento
-from evento_fin_lavado import EventoFinLavado
+from simulacion.eventos.evento import Evento
+from simulacion.eventos.evento_fin_lavado import EventoFinLavado
 
 from simulacion.estadisticas import FilaVectorEstado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
