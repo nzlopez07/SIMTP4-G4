@@ -35,7 +35,8 @@ def simulacion_ejecutar():
     ## A lo sumo guardar la seed y pasársela por separado al motor para que la use en su generador???
     motor = MotorSimulacion(seed, hora_fin, cant_sim)
     motor.ejecutar()
-    # return render_template("resultados.html", filas=filas_serializables)
+    filas_serializables = [f.como_dict() for f in motor.vector_estado.filas]
+    return render_template("resultados.html", filas=filas_serializables)
 
 
 @bp.route("/simulacion/resultados")

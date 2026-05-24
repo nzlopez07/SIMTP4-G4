@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from simulacion.eventos.evento import Evento
 from simulacion.eventos.evento_fin_lavado import EventoFinLavado
@@ -24,37 +24,33 @@ class EventoLlegada(Evento):
         auto = Auto(id, self.tiempo)  # El estado se asignará más adelante
 
         
-        # validar que el reloj es menor a las 21:00
-        if self.tiempo.time() > time(21,0,0):
-            filaActual.accionLlegada = f"Fuera de horario"
-            
-            return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
+        # Validar que el reloj es menor a las 21:00
+        if self.tiempo.time() > time(21, 0, 0):
+            filaActual.accionLlegada = "Fuera de horario"
 
+            from simulacion.eventos.evento_nuevo_dia import EventoNuevoDia
+            siguiente_dia = (self.tiempo + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
+            motor.calendario.agregar_evento(EventoNuevoDia(siguiente_dia))
 
-        # validar que la cola de autos no esté llena (max 5)
-        # si está llena el cliente se retira (pierde)
-        # en caso contrario se genera el auto y agrega a la cola
-        if filaAnterior.colaAutos >= 5:
-            filaActual.accionLlegada = f"A{id} se retira"
-            filaActual.clientesPerdidos = filaAnterior.clientesPerdidos + 1
-            
-            return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
-        else:
-            filaActual.accionLlegada = f"A{id} ingresa"       
-
+            return motor.agregar_fila_vector(filaActual)
 
         generador = GestorVariablesAleatorias()
 
-        # Generar la nueva llegada
+        # Generar la próxima llegada siempre, independientemente del estado de la cola
         filaActual.rndLlegada = motor.generarRND()
         filaActual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(filaActual.rndLlegada)
-
         motor.calendario.agregar_evento(EventoLlegada(filaActual.tiempoLlegada))
 
+        # validar que la cola de autos no esté llena (max 5)
+        if filaAnterior.colaAutos >= 5:
+            filaActual.accionLlegada = f"A{id} se retira"
+            filaActual.clientesPerdidos = filaAnterior.clientesPerdidos + 1
+            return motor.agregar_fila_vector(filaActual)
+
+        filaActual.accionLlegada = f"A{id} ingresa"
 
         # Generar evento fin lavado
         if not filaAnterior.tunel.esta_libre():
-            # Si el túnel no está libre, el auto se agrega a la cola
             filaActual.colaAutos = filaAnterior.colaAutos + 1
             auto.estado = "EnCola"
             filaActual.autos.append(auto)
@@ -63,11 +59,10 @@ class EventoLlegada(Evento):
             filaAnterior.tunel.ocupar(auto)
 
             filaActual.rndLavado = motor.generarRND()
-            #filaActual.tiempoLavado = self.tiempo + generador.tiempoLavado(filaActual.rndLavado)
+            filaActual.tiempoLavado = self.tiempo + generador.tiempoLavado(filaActual.rndLavado)
             motor.calendario.agregar_evento(EventoFinLavado(filaActual.tiempoLavado))
 
-
-        return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
+        return motor.agregar_fila_vector(filaActual)
 
 
     def copiarFila(self, filaAnterior):

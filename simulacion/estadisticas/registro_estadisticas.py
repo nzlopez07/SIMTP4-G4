@@ -1,10 +1,13 @@
+from datetime import timedelta
+
+
 class RegistroEstadisticas:
     """Contenedor de métricas y acumuladores."""
 
     def __init__(self):
         self.clientesPerdidos = 0
-        self.tiempoTunelBloqueado = 0
-        self.tiempoHorasExtras = 0
+        self.tiempoTunelBloqueado = timedelta(0)
+        self.tiempoHorasExtras = timedelta(0)
 
     def registrar_cliente_perdido(self):
         self.clientesPerdidos += 1

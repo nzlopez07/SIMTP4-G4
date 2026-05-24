@@ -114,8 +114,8 @@ class EventoFinAspirado(Evento):
         fila_actual.evento_simulado = f"{self.nombre} puesto {self.puesto_id}"
 
     def _obtener_fila_base(self, motor):
-        if hasattr(motor, "fila_anterior") and motor.fila_anterior is not None:
-            return motor.fila_anterior
+        if motor.fila_actual is not None:
+            return motor.fila_actual
 
         return motor.vector_estado.getActual()
 

@@ -1,4 +1,5 @@
 import datetime
+from simulacion.objetos.auto import Auto
 
 
 class TunelLavado:
@@ -6,7 +7,7 @@ class TunelLavado:
     def __init__(self):
         self.estado = "Libre"  # Libre | Ocupado | Bloqueado (se puede hacer un patron de estado para si esta libre ocupado o bloqueado y generar las funciones esLibre esOcupado etc)
         self.auto_actual: Auto = None  # id del auto
-        self.horaInicioBloqueado
+        self.horaInicioBloqueado = None
 
     def esta_libre(self):
         """Indica si el túnel de lavado está libre."""
