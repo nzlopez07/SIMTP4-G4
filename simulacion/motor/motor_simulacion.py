@@ -1,46 +1,49 @@
+import random
+
 from simulacion.estadisticas.vector_estado import VectorEstado
 from simulacion.estadisticas.registro_estadisticas import RegistroEstadisticas
-from simulacion.eventos import Evento, EventoLlegada, EventoFinLavado, EventoFinAspirado
 from simulacion.motor.calendario_eventos import CalendarioEventos
 
-import random
+
 class MotorSimulacion:
-    """Núcleo que controlará la simulación.
+    """Nucleo que controlara la simulacion."""
 
-    Ahora el motor puede recibir por inyección una instancia de GeneradorAleatorio
-    y una instancia de VectorEstado (historial). Si no se proveen, se crean
-    instancias por defecto.
-    """
+    def __init__(self, seed=None, hora_fin=None, cant_sim=None, vector_estado=None):
+        if seed == "":
+            seed = None
 
-    def __init__(self, seed, vector_estado=None):
         if seed is None or isinstance(seed, int):
             random.seed(seed)
 
-        # self.generador = generador(seed)
+        self.seed = seed
+        self.hora_fin = hora_fin
+        self.cant_sim = cant_sim
 
         self.vector_estado = vector_estado if isinstance(vector_estado, VectorEstado) else VectorEstado()
 
-        # registro de métricas separado
+        # Ventana operativa de dos filas para generar la siguiente iteracion.
+        self.fila_anterior = None
+        self.fila_actual = None
+
+        # registro de metricas separado
         self.registro = RegistroEstadisticas()
 
         # reloj e iterador
         self.reloj = 0.0
         self.iteracion = 0
 
-        # calendario/agenda de eventos (se implementará aparte)
+        # calendario/agenda de eventos
         self.calendario = CalendarioEventos()
 
     def agregar_fila_vector(self, fila):
         """Agregar una fila al vector de estado."""
+        self.fila_anterior = self.fila_actual
+        self.fila_actual = fila
         self.vector_estado.agregar(fila)
 
     def ejecutar(self, max_iteraciones=None, tiempo_max=None):
-        """Bucle principal de la simulación (esqueleto).
-
-        Por ahora es solo un stub; la implementación real iterará sobre el
-        calendario de eventos y generará filas para el vector de estado.
-        """
+        """Bucle principal de la simulacion pendiente de implementacion."""
         raise NotImplementedError
-    
+
     def generarRND(self):
         return random.random()
