@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, time
+from datetime import datetime, date, time, timedelta
 
 from simulacion.estadisticas.vector_estado import VectorEstado
 from simulacion.estadisticas.registro_estadisticas import RegistroEstadisticas
@@ -9,17 +9,13 @@ from simulacion.motor.calendario_eventos import CalendarioEventos
 class MotorSimulacion:
     """Nucleo que controlara la simulacion."""
 
-    def __init__(
-        self,
-        seed: int | None = None,
-        hora_fin: str | None = None,
-        cant_sim: int | None = None,
-        vector_estado: VectorEstado | None = None,
-        calendario: CalendarioEventos | None = None,
-        registro: RegistroEstadisticas | None = None,
-    ):
+    def __init__(self, seed: int | None = None, hora_fin: str | None = None, cant_sim: int | None = None, vector_estado: VectorEstado | None = None,
+                 calendario: CalendarioEventos | None = None, registro: RegistroEstadisticas | None = None):
+        seed     = int(seed)      if seed      not in (None, "") else None
+        cant_sim = int(cant_sim)  if cant_sim  not in (None, "") else None
+
         self._seed = seed
-        self._hora_fin = hora_fin
+        self._hora_fin = hora_fin if hora_fin not in (None, "") else None
         self._cant_sim = cant_sim
         self._vector_estado = vector_estado or VectorEstado()
         self._calendario = calendario or CalendarioEventos()
@@ -30,8 +26,22 @@ class MotorSimulacion:
         self._reloj = 0.0
         self._iteracion = 0
 
-        if isinstance(seed, int):
+        # Punto de fin absoluto: hora_fin se interpreta como horas corridas desde medianoche del día de inicio. "21:00" con fin a las 21:00 del día 1;
+        # "72:00" con fin a medianoche del día 4 (3 días completos de servicio).
+        self._datetime_fin = self._calcular_datetime_fin()
+
+        if seed is not None:
             random.seed(seed)
+
+    def _calcular_datetime_fin(self) -> datetime | None:
+        if self._hora_fin is None:
+            return None
+        partes = self._hora_fin.split(":")
+        horas   = int(partes[0])
+        minutos = int(partes[1]) if len(partes) > 1 else 0
+        segundos = int(partes[2]) if len(partes) > 2 else 0
+        midnight = datetime.combine(date.today(), time(0, 0, 0))
+        return midnight + timedelta(hours=horas, minutes=minutos, seconds=segundos)
 
     @property
     def fila_anterior(self):
@@ -99,8 +109,11 @@ class MotorSimulacion:
             evento.procesar(self)
 
     def _condicion_de_parada_alcanzada(self) -> bool:
-        if self._cant_sim is not None:
-            return len(self._vector_estado) >= self._cant_sim
+        if self._cant_sim is not None and len(self._vector_estado) >= self._cant_sim:
+            return True
+        if self._datetime_fin is not None and len(self._vector_estado) > 0:
+            if self._vector_estado.getActual().hora_simulada >= self._datetime_fin:
+                return True
         return False
 
     def _finalizar(self) -> None:
@@ -111,7 +124,6 @@ class MotorSimulacion:
         self._registro.registrar_fin_simulacion(fila_final.hora_simulada, hora_cierre)
 
     def _resolver_hora_cierre(self) -> datetime:
-        if self._hora_fin is None:
-            return datetime.combine(datetime.today(), time(21, 0, 0))
-        h, m, s = map(int, self._hora_fin.split(":"))
-        return datetime.combine(datetime.today(), time(h, m, s))
+        if self._datetime_fin is not None:
+            return self._datetime_fin
+        return datetime.combine(date.today(), time(21, 0, 0))
