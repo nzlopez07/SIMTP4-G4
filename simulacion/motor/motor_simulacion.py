@@ -12,12 +12,7 @@ class MotorSimulacion:
     instancias por defecto.
     """
 
-    def __init__(self, seed, vector_estado=None): # no estoy segura que tan correcto es pasarle el generador al motor como inicializador
-        # inyección de dependencias: generador de números y vector de estado
-        
-        # self.seed = seed
-        # No hace falta que el gestor guarde la seed, con hacer random.seed queda seteada
-        # Si seed = None => no se rompe, usara de seed otra cosa (reloj del sistema por ejemplo)
+    def __init__(self, seed, vector_estado=None):
         if seed is None or isinstance(seed, int):
             random.seed(seed)
 
