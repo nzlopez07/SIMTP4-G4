@@ -466,6 +466,107 @@ body {
     transform: translateY(-1px);
 }
 
+/* --- Sección de resultados --- */
+.results-section {
+    padding: 2rem 2rem 5rem;
+    background: var(--blanco-terroso);
+}
+
+/* Contenedor con scroll horizontal para tablas anchas */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(24, 95, 165, 0.12);
+    box-shadow: 0 2px 12px rgba(24, 95, 165, 0.08);
+    background: var(--blanco);
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    min-width: 1300px;
+}
+
+.results-table th,
+.results-table td {
+    padding: 0.45rem 0.7rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(24, 95, 165, 0.08);
+    border-right: 1px solid rgba(24, 95, 165, 0.06);
+    white-space: nowrap;
+}
+
+.results-table th:last-child,
+.results-table td:last-child {
+    border-right: none;
+}
+
+/* Primera fila de encabezado: grupos de columnas */
+.results-table thead .col-group {
+    background: var(--azul-generico);
+    color: var(--blanco);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.5rem 0.7rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.results-table thead .col-group:last-child {
+    border-right: none;
+}
+
+/* Segunda fila de encabezado: nombres de columna */
+.results-table thead tr:last-child th {
+    background: #EBF3FC;
+    color: var(--azul-oscuro);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(24, 95, 165, 0.15);
+}
+
+.results-table tbody tr:nth-child(even) {
+    background: #f8f9fb;
+}
+
+.results-table tbody tr:hover {
+    background: #EBF3FC;
+    transition: background 0.1s;
+}
+
+.results-table td {
+    color: var(--gris-oscuro);
+}
+
+/* Celdas sin valor (None) */
+.cell-null {
+    color: #c0c8d0;
+}
+
+/* Estado vacío cuando no hay filas */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 4rem 2rem;
+    color: #888;
+    text-align: center;
+}
+
+.empty-state p {
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .results-section {
+        padding: 1.5rem 1rem 3.5rem;
+    }
+}
+
 /* --- Footer --- */
 footer {
     background: var(--azul-oscuro);
