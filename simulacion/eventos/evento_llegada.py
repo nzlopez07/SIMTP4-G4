@@ -1,111 +1,92 @@
-from datetime import datetime, time
+from datetime import time
 
 from simulacion.eventos.evento import Evento
 from simulacion.eventos.evento_fin_lavado import EventoFinLavado
-
-from simulacion.estadisticas import FilaVectorEstado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 from simulacion.objetos import Auto
 
 
 class EventoLlegada(Evento):
-    def __init__(self, tiempo: datetime):
+    """Evento que procesa la llegada de un auto al lavadero."""
+
+    HORA_CIERRE = time(21, 0, 0)
+
+    def __init__(self, tiempo):
         super().__init__(tiempo, "Llegada")
+        self.auto = None
+        self.cliente_perdido = False
 
-    def ejecutar(self, motor, filaAnterior):
-        filaActual = self.copiarFila(filaAnterior)
-        filaActual.iteracion = filaAnterior.iteracion + 1
-        filaActual.hora_simulada = self.tiempo
-        filaActual.evento_simulado = self.nombre
-       
-        # Generar el nuevo auto
-        filaActual.contadorAutos = filaAnterior.contadorAutos + 1
-        id = filaActual.contadorAutos
-        auto = Auto(id, self.tiempo)  # El estado se asignará más adelante
+    def _ejecutar(self, motor):
+        fila_anterior = self._obtener_fila_base(motor)
+        self.fila_actual = self._copiar_fila(fila_anterior)
+        self._preparar_fila(self.fila_actual, fila_anterior)
 
-        
-        # validar que el reloj es menor a las 21:00
-        if self.tiempo.time() > time(21,0,0):
-            filaActual.accionLlegada = f"Fuera de horario"
-            
-            return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
+        if self._fuera_de_horario():
+            self.fila_actual.accionLlegada = "Fuera de horario"
+            return
 
+        self.auto = self._crear_auto()
 
-        # validar que la cola de autos no esté llena (max 5)
-        # si está llena el cliente se retira (pierde)
-        # en caso contrario se genera el auto y agrega a la cola
-        if filaAnterior.colaAutos >= 5:
-            filaActual.accionLlegada = f"A{id} se retira"
-            filaActual.clientesPerdidos = filaAnterior.clientesPerdidos + 1
-            
-            return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
+        if self.fila_actual.colaAutos >= 5:
+            self._registrar_cliente_perdido()
+            return
+
+        self.fila_actual.accionLlegada = f"A{self.auto.id} ingresa"
+
+        if self.fila_actual.tunel.esta_libre():
+            self._iniciar_lavado(motor, self.auto)
         else:
-            filaActual.accionLlegada = f"A{id} ingresa"       
+            self._encolar_auto(self.auto)
 
+    def _generar_eventos(self, motor):
+        if self._fuera_de_horario():
+            return
 
+        self._generar_proxima_llegada(motor)
+
+    def _actualizar_estadisticas(self, motor):
+        if self.cliente_perdido:
+            motor.registro.registrar_cliente_perdido()
+
+        super()._actualizar_estadisticas(motor)
+
+    def _crear_auto(self):
+        self.fila_actual.contadorAutos += 1
+        return Auto(self.fila_actual.contadorAutos, self.tiempo)
+
+    def _registrar_cliente_perdido(self):
+        self.auto.estado = "Retirado"
+        self.cliente_perdido = True
+        self.fila_actual.clientesPerdidos += 1
+        self.fila_actual.accionLlegada = f"A{self.auto.id} se retira"
+
+    def _encolar_auto(self, auto):
+        auto.estado = "EnCola"
+        self.fila_actual.colaAutos += 1
+        self.fila_actual.autos.append(auto)
+
+    def _iniciar_lavado(self, motor, auto):
         generador = GestorVariablesAleatorias()
 
-        # Generar la nueva llegada
-        filaActual.rndLlegada = motor.generarRND()
-        filaActual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(filaActual.rndLlegada)
+        auto.estado = "EnLavado"
+        self.fila_actual.tunel.ocupar(auto)
+        self.fila_actual.rndLavado = motor.generarRND()
+        self.fila_actual.tiempoLavado = self.tiempo + generador.tiempoLavado(
+            self.fila_actual.rndLavado
+        )
 
-        motor.calendario.agregar_evento(EventoLlegada(filaActual.tiempoLlegada))
+        motor.calendario.agregar_evento(EventoFinLavado(self.fila_actual.tiempoLavado))
 
+    def _generar_proxima_llegada(self, motor):
+        generador = GestorVariablesAleatorias()
 
-        # Generar evento fin lavado
-        if not filaAnterior.tunel.esta_libre():
-            # Si el túnel no está libre, el auto se agrega a la cola
-            filaActual.colaAutos = filaAnterior.colaAutos + 1
-            auto.estado = "EnCola"
-            filaActual.autos.append(auto)
-        else:
-            auto.estado = "EnLavado"
-            filaAnterior.tunel.ocupar(auto)
+        self.fila_actual.rndLlegada = motor.generarRND()
+        self.fila_actual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(
+            self.fila_actual.rndLlegada
+        )
 
-            filaActual.rndLavado = motor.generarRND()
-            #filaActual.tiempoLavado = self.tiempo + generador.tiempoLavado(filaActual.rndLavado)
-            motor.calendario.agregar_evento(EventoFinLavado(filaActual.tiempoLavado))
+        if self.fila_actual.tiempoLlegada.time() < self.HORA_CIERRE:
+            motor.calendario.agregar_evento(EventoLlegada(self.fila_actual.tiempoLlegada))
 
-
-        return motor.agregar_fila_vector(filaActual)    # Agregar la fila al vector de estado
-
-
-    def copiarFila(self, filaAnterior):
-        """" 
-        Copiar los valores necesarios de la fila anterior a la actual 
-        Datos que se tienen que copiar:
-            tiempoLavado   # si ya hay un evento finLavado ya creado
-            tiempoAspirado 1 y 2    # si ya hay un evento finAspirado ya creado
-                
-            colaAutos
-            autos
-
-            clientesPerdidos
-            tiempoHorasExtras
-            tiempoTunelBloqueado
-
-            tunel
-            puestoAspirado 1 y 2
-
-        Con esto se operará sobre la fila actual directamente, para de esa forma en caso de no requerir modificación
-        se mantendrán los mismos valores. Esto ahorrará if else y hará el código más limpio.
-        """
-
-        fila = FilaVectorEstado()
-
-        fila.tiempoLavado = filaAnterior.tiempoLavado
-        fila.tiempoAspirado1 = filaAnterior.tiempoAspirado1
-        fila.tiempoAspirado2 = filaAnterior.tiempoAspirado2
-
-        fila.colaAutos = filaAnterior.colaAutos
-        fila.autos = filaAnterior.autos
-
-        fila.clientesPerdidos = filaAnterior.clientesPerdidos
-        fila.tiempoHorasExtras = filaAnterior.tiempoHorasExtras
-        fila.tiempoTunelBloqueado = filaAnterior.tiempoTunelBloqueado
-
-        fila.tunel = filaAnterior.tunel
-        fila.puestoAspirado1 = filaAnterior.puestoAspirado1
-        fila.puestoAspirado2 = filaAnterior.puestoAspirado2
-
-        return fila
+    def _fuera_de_horario(self):
+        return self.tiempo.time() >= self.HORA_CIERRE
