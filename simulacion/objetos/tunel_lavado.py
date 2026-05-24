@@ -25,7 +25,8 @@ class TunelLavado:
 
         self.auto_actual = None
         self.estado = "Libre"
+        self.horaInicioBloqueado = None
 
-    def bloquear(self, tiempo_inicio=None):
+    def bloquear(self, tiempo_inicio):
         self.estado = "Bloqueado"
         self.horaInicioBloqueado = tiempo_inicio

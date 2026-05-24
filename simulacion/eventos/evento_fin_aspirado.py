@@ -52,8 +52,8 @@ class EventoFinAspirado(Evento):
             raise Exception("El tunel esta bloqueado, pero no conserva el auto bloqueado.")
 
         generador = GestorVariablesAleatorias()
-        self.fila_actual.tunel.liberar()
         self._registrar_tiempo_bloqueado()
+        self.fila_actual.tunel.liberar()
         self._ocupar_puesto_aspirado(motor, self.puesto, auto_bloqueado, generador)
         self.bloqueo_finalizado = True
 
@@ -64,7 +64,6 @@ class EventoFinAspirado(Evento):
             return
 
         self.fila_actual.tiempoTunelBloqueado += self.tiempo - inicio
-        self.fila_actual.tunel.horaInicioBloqueado = None
 
     def _ocupar_puesto_aspirado(self, motor, puesto, auto, generador):
         auto.estado = "EnAspirado"

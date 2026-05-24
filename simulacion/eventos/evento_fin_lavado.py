@@ -52,8 +52,7 @@ class EventoFinLavado(Evento):
 
         if puesto is None:
             self.auto.estado = "EsperandoAspirado"
-            self.fila_actual.tunel.estado = "Bloqueado"
-            self.fila_actual.tunel.horaInicioBloqueado = self.tiempo
+            self.fila_actual.tunel.bloquear(self.tiempo)
             self.bloqueo_iniciado = True
             return
 
