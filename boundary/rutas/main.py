@@ -26,35 +26,16 @@ def simulacion_ejecutar():
         return render_template(
             "formulario-simulacion.html",
             error="Debés completar al menos uno de los campos: «Horario hasta» o «Cantidad de simulaciones».",
-            hora_fin=hora_fin, ##String
+            hora_fin=hora_fin,
             cant_sim=cant_sim,
             seed=seed,
         )
 
     # crear motor con vector y generador por defecto
     ## A lo sumo guardar la seed y pasársela por separado al motor para que la use en su generador???
-    ## O pasarle el generador previamente creado acá??
     motor = MotorSimulacion(seed, hora_fin, cant_sim)
-
-    # generar una fila de ejemplo para que la vista muestre algo
-    fila = FilaVectorEstado()
-    fila.iteracion = 1
-    fila.hora_simulada = 0.0
-    motor.agregar_fila_vector(fila)
-    fila.evento_simulado = "InicioSimulacion"
-
-    if hora_inicio and hora_fin:
-        fila.agregar_variable_auxiliar("hora_inicio", hora_inicio)
-        fila.agregar_variable_auxiliar("hora_fin",    hora_fin)
-    else:
-        fila.agregar_variable_auxiliar("cant_sim", cant_sim)
-
-    if seed:
-        fila.agregar_rnd("seed", seed)
-        
-    # renderizar resultados inmediatamente
-    filas_serializables = [f.como_dict() for f in motor.vector_estado.filas]
-    return render_template("resultados.html", filas=filas_serializables)
+    motor.ejecutar()
+    # return render_template("resultados.html", filas=filas_serializables)
 
 
 @bp.route("/simulacion/resultados")

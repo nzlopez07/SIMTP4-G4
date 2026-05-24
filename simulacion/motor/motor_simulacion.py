@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, time
 
 from simulacion.estadisticas.vector_estado import VectorEstado
 from simulacion.estadisticas.registro_estadisticas import RegistroEstadisticas
@@ -8,42 +9,109 @@ from simulacion.motor.calendario_eventos import CalendarioEventos
 class MotorSimulacion:
     """Nucleo que controlara la simulacion."""
 
-    def __init__(self, seed=None, hora_fin=None, cant_sim=None, vector_estado=None):
-        if seed == "":
-            seed = None
+    def __init__(
+        self,
+        seed: int | None = None,
+        hora_fin: str | None = None,
+        cant_sim: int | None = None,
+        vector_estado: VectorEstado | None = None,
+        calendario: CalendarioEventos | None = None,
+        registro: RegistroEstadisticas | None = None,
+    ):
+        self._seed = seed
+        self._hora_fin = hora_fin
+        self._cant_sim = cant_sim
+        self._vector_estado = vector_estado or VectorEstado()
+        self._calendario = calendario or CalendarioEventos()
+        self._registro = registro or RegistroEstadisticas()
 
-        if seed is None or isinstance(seed, int):
+        self._fila_anterior = None
+        self._fila_actual = None
+        self._reloj = 0.0
+        self._iteracion = 0
+
+        if isinstance(seed, int):
             random.seed(seed)
 
-        self.seed = seed
-        self.hora_fin = hora_fin
-        self.cant_sim = cant_sim
+    @property
+    def fila_anterior(self):
+        return self._fila_anterior
 
-        self.vector_estado = vector_estado if isinstance(vector_estado, VectorEstado) else VectorEstado()
+    @property
+    def fila_actual(self):
+        return self._fila_actual
 
-        # Ventana operativa de dos filas para generar la siguiente iteracion.
-        self.fila_anterior = None
-        self.fila_actual = None
+    @property
+    def vector_estado(self) -> VectorEstado:
+        return self._vector_estado
 
-        # registro de metricas separado
-        self.registro = RegistroEstadisticas()
+    @property
+    def calendario(self) -> CalendarioEventos:
+        return self._calendario
 
-        # reloj e iterador
-        self.reloj = 0.0
-        self.iteracion = 0
+    @property
+    def registro(self) -> RegistroEstadisticas:
+        return self._registro
 
-        # calendario/agenda de eventos
-        self.calendario = CalendarioEventos()
+    @property
+    def cant_sim(self) -> int | None:
+        return self._cant_sim
 
-    def agregar_fila_vector(self, fila):
-        """Agregar una fila al vector de estado."""
-        self.fila_anterior = self.fila_actual
-        self.fila_actual = fila
-        self.vector_estado.agregar(fila)
+    @cant_sim.setter
+    def cant_sim(self, value: int | None):
+        self._cant_sim = value
 
-    def ejecutar(self, max_iteraciones=None, tiempo_max=None):
-        """Bucle principal de la simulacion pendiente de implementacion."""
-        raise NotImplementedError
+    @property
+    def hora_fin(self) -> str | None:
+        return self._hora_fin
 
-    def generarRND(self):
+    def agregar_fila_vector(self, fila) -> None:
+        """Desplaza la ventana deslizante y registra la fila en el historial."""
+        self._fila_anterior = self._fila_actual
+        self._fila_actual = fila
+        self._vector_estado.agregar(fila)
+
+    def generarRND(self) -> float:
         return random.random()
+
+    def ejecutar(self, max_iteraciones: int | None = None, tiempo_max=None) -> None:
+        from simulacion.eventos.evento_inicializacion import EventoInicializacion
+        from simulacion.eventos.evento_llegada import EventoLlegada
+
+        if max_iteraciones is not None:
+            self._cant_sim = max_iteraciones
+
+        EventoInicializacion().ejecutar(self)
+
+        while not self._calendario.esta_vacio():
+            if self._condicion_de_parada_alcanzada():
+                break
+            evento = self._calendario.obtener_proximo()
+            self._despachar(evento)
+
+        self._finalizar()
+
+    def _despachar(self, evento) -> None:
+        from simulacion.eventos.evento_llegada import EventoLlegada
+        if isinstance(evento, EventoLlegada):
+            evento.ejecutar(self, self._fila_actual)
+        else:
+            evento.procesar(self)
+
+    def _condicion_de_parada_alcanzada(self) -> bool:
+        if self._cant_sim is not None:
+            return len(self._vector_estado) >= self._cant_sim
+        return False
+
+    def _finalizar(self) -> None:
+        if len(self._vector_estado) == 0:
+            return
+        fila_final = self._vector_estado.getActual()
+        hora_cierre = self._resolver_hora_cierre()
+        self._registro.registrar_fin_simulacion(fila_final.hora_simulada, hora_cierre)
+
+    def _resolver_hora_cierre(self) -> datetime:
+        if self._hora_fin is None:
+            return datetime.combine(datetime.today(), time(21, 0, 0))
+        h, m, s = map(int, self._hora_fin.split(":"))
+        return datetime.combine(datetime.today(), time(h, m, s))
