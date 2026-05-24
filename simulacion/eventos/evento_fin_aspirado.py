@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from simulacion.eventos.evento import Evento
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 
@@ -10,7 +8,6 @@ class EventoFinAspirado(Evento):
     def __init__(self, tiempo, puesto_id):
         super().__init__(tiempo, "Fin aspirado")
         self.puesto_id = puesto_id
-        self.fila_actual = None
         self.puesto = None
         self.auto_finalizado = None
         self.bloqueo_finalizado = False
@@ -109,15 +106,5 @@ class EventoFinAspirado(Evento):
         return None
 
     def _preparar_fila(self, fila_actual, fila_anterior):
-        fila_actual.iteracion = fila_anterior.iteracion + 1
-        fila_actual.hora_simulada = self.tiempo
+        super()._preparar_fila(fila_actual, fila_anterior)
         fila_actual.evento_simulado = f"{self.nombre} puesto {self.puesto_id}"
-
-    def _obtener_fila_base(self, motor):
-        if hasattr(motor, "fila_anterior") and motor.fila_anterior is not None:
-            return motor.fila_anterior
-
-        return motor.vector_estado.getActual()
-
-    def _copiar_fila(self, fila):
-        return deepcopy(fila)
