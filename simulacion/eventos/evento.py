@@ -1,34 +1,61 @@
 from abc import ABC, abstractmethod
-class Evento:
-    """Clase base para eventos."""
+from copy import deepcopy
+
+
+class Evento(ABC):
+    """Clase base para eventos de la simulacion."""
 
     def __init__(self, tiempo, nombre):
         self.tiempo = tiempo
         self.nombre = nombre
+        self.fila_actual = None
 
     def __lt__(self, otroEvento):
-        """Permite comparar eventos por su tiempo para ordenarlos en el calendario."""
+        """Permite ordenar eventos por tiempo dentro del calendario."""
         return self.tiempo < otroEvento.tiempo
 
-    def procesar(self, motor): ##Contratos a implementar
-        """Procesa el evento sobre el `motor` (implementación en el futuro)."""
+    def procesar(self, motor):
+        """Template Method: define el orden comun de procesamiento."""
         self._validar_procesamiento(motor)
         self._ejecutar(motor)
         self._generar_eventos(motor)
         self._actualizar_estadisticas(motor)
 
     def _validar_procesamiento(self, motor):
-        """Valida que el evento pueda ser procesado sobre el motor dado."""
-        pass  # Implementar validaciones específicas según el tipo de evento
+        pass
 
+    @abstractmethod
     def _ejecutar(self, motor):
-        """Ejecuta la lógica principal del evento sobre el motor."""
-        pass  # Implementar la lógica específica del evento
+        pass
 
+    @abstractmethod
     def _generar_eventos(self, motor):
-        """Genera nuevos eventos en función del resultado del evento actual."""
-        pass  # Implementar la generación de nuevos eventos según el tipo de evento
+        pass
 
     def _actualizar_estadisticas(self, motor):
-        """Actualiza las estadísticas del motor en función del resultado del evento."""
-        pass  # Implementar la actualización de estadísticas según el tipo de evento
+        if self.fila_actual is not None:
+            motor.agregar_fila_vector(self.fila_actual)
+
+    def _obtener_fila_base(self, motor):
+        if hasattr(motor, "obtener_fila_base"):
+            return motor.obtener_fila_base()
+
+        if getattr(motor, "fila_actual", None) is not None:
+            return motor.fila_actual
+
+        return motor.vector_estado.getActual()
+
+    def _copiar_fila(self, fila):
+        """Copia completa de la fila anterior.
+
+        Usamos deepcopy porque la fila contiene objetos mutables y anidados
+        (tunel, puestos, autos y cola). Una copia manual es ruidosa y facil de
+        desactualizar cada vez que se agrega una columna al vector de estado.
+        """
+        return deepcopy(fila)
+
+    def _preparar_fila(self, fila_actual, fila_anterior=None):
+        iteracion_anterior = fila_anterior.iteracion if fila_anterior is not None else 0
+        fila_actual.iteracion = iteracion_anterior + 1
+        fila_actual.hora_simulada = self.tiempo
+        fila_actual.evento_simulado = self.nombre
