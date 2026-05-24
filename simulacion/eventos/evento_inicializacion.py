@@ -1,36 +1,33 @@
 from datetime import datetime, time
+
+from simulacion.estadisticas import FilaVectorEstado
 from simulacion.eventos.evento import Evento
 from simulacion.eventos.evento_llegada import EventoLlegada
-from simulacion.estadisticas import FilaVectorEstado
-from simulacion.objetos import TunelLavado, PuestoAspirado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
+from simulacion.objetos import PuestoAspirado, TunelLavado
 
 
 class EventoInicializacion(Evento):
+    """Evento inicial: crea la primera fila y agenda la primera llegada."""
+
     def __init__(self):
-        t = datetime.combine(datetime.now(), time(9,0,0))
-        super().__init__(t, "Inicialización")
+        tiempo = datetime.combine(datetime.now(), time(9, 0, 0))
+        super().__init__(tiempo, "Inicializacion")
 
-    def ejecutar(self, motor):
-        primera_fila = FilaVectorEstado()
-        primera_fila.iteracion = 1
-        primera_fila.hora_simulada = self.tiempo
-        primera_fila.evento_simulado = self.nombre
+    def _ejecutar(self, motor):
+        self.fila_actual = FilaVectorEstado()
+        self._preparar_fila(self.fila_actual)
 
-        primera_fila.tunel = TunelLavado()
-        primera_fila.puestoAspirado1 = PuestoAspirado(1)
-        primera_fila.puestoAspirado2 = PuestoAspirado(2)
+        self.fila_actual.tunel = TunelLavado()
+        self.fila_actual.puestoAspirado1 = PuestoAspirado(1)
+        self.fila_actual.puestoAspirado2 = PuestoAspirado(2)
 
-
+    def _generar_eventos(self, motor):
         generador = GestorVariablesAleatorias()
 
-        # Generar un RND para la llegada del primer auto
-        primera_fila.rndLlegada = motor.generarRND()
-        # Calcular el tiempo de llegada del primer auto | el generador retorna un timedelta
-        primera_fila.tiempoLlegada = self.tiempo + generador.tiempoLlegada(primera_fila.rndLlegada)
+        self.fila_actual.rndLlegada = motor.generarRND()
+        self.fila_actual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(
+            self.fila_actual.rndLlegada
+        )
 
-        # Agregar el evento a la cola
-        motor.calendario.agregar_evento(EventoLlegada(primera_fila.tiempoLlegada))
-
-        # Agregar la fila al vector de estado
-        motor.agregar_fila_vector(primera_fila)
+        motor.calendario.agregar_evento(EventoLlegada(self.fila_actual.tiempoLlegada))
