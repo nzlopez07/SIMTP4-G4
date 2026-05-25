@@ -472,9 +472,11 @@ body {
     background: var(--blanco-terroso);
 }
 
-/* Contenedor con scroll horizontal para tablas anchas */
+/* Contenedor con scroll horizontal y vertical para tablas anchas */
 .table-wrapper {
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 250px);
     border-radius: var(--radius-md);
     border: 1px solid rgba(24, 95, 165, 0.12);
     box-shadow: 0 2px 12px rgba(24, 95, 165, 0.08);
@@ -504,6 +506,9 @@ body {
 
 /* Primera fila de encabezado: grupos de columnas */
 .results-table thead .col-group {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     background: var(--azul-generico);
     color: var(--blanco);
     font-size: 0.72rem;
@@ -520,6 +525,9 @@ body {
 
 /* Segunda fila de encabezado: nombres de columna */
 .results-table thead tr:last-child th {
+    position: sticky;
+    top: 2.08rem;
+    z-index: 2;
     background: #EBF3FC;
     color: var(--azul-oscuro);
     font-size: 0.75rem;

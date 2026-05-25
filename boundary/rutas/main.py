@@ -20,7 +20,18 @@ def simulacion_ejecutar():
     cant_sim    = request.form.get("cant_sim",    "").strip()
     seed        = request.form.get("seed",        "").strip()
 
-    # Al menos uno de los dos grupos debe estar completo
+    # Solo uno de los dos puede estar completo
+    if (hora_fin and cant_sim):
+        return render_template(
+            "formulario-simulacion.html",
+            error_title="Parámetros en conflicto",
+            error="Solo podés completar uno de los campos: «Horario hasta» o «Cantidad de simulaciones», no ambos a la vez.",
+            hora_fin=hora_fin,
+            cant_sim=cant_sim,
+            seed=seed,
+        )
+
+    # Al menos uno de los dos debe estar completo
     if not hora_fin and not cant_sim:
         return render_template(
             "formulario-simulacion.html",
