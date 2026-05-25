@@ -569,7 +569,77 @@ body {
     margin: 0;
 }
 
+/* --- Stats cards (resultados) --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.stat-card {
+    background: var(--blanco);
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    border: 1px solid rgba(24, 95, 165, 0.1);
+    box-shadow: 0 2px 8px rgba(24, 95, 165, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    text-align: center;
+}
+
+.stat-card--danger {
+    border-color: rgba(220, 38, 38, 0.2);
+    background: #fff8f8;
+}
+
+.stat-card--warning {
+    border-color: rgba(234, 179, 8, 0.3);
+    background: #fffdf0;
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    background: #EBF3FC;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--azul-generico);
+    margin-bottom: 0.25rem;
+}
+
+.stat-card--danger .stat-icon {
+    background: #FEE2E2;
+    color: #DC2626;
+}
+
+.stat-card--warning .stat-icon {
+    background: #FEF9C3;
+    color: #A16207;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gris-oscuro);
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: 500;
+}
+
 @media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
     .results-section {
         padding: 1.5rem 1rem 3.5rem;
     }
@@ -616,42 +686,6 @@ footer {
 @keyframes modal-slide-up {
     from { transform: translateY(10px); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
-}
-
-.modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-}
-
-.modal-icon-error {
-    width: 44px;
-    height: 44px;
-    background: #FEE2E2;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #DC2626;
-    flex-shrink: 0;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #999;
-    padding: 4px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    transition: background 0.15s, color 0.15s;
-}
-
-.modal-close:hover {
-    background: #f0f0f0;
-    color: var(--gris-oscuro);
 }
 
 .modal-title {

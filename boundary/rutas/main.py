@@ -43,5 +43,16 @@ def simulacion_ejecutar():
     # Creacion del controller
     motor = MotorSimulacion(seed, hora_fin, cant_sim)
     motor.ejecutar()
+
+    ultima_fila = motor.vector_estado.getActual()
+    metricas = motor.registro.calcular_metricas_finales(ultima_fila)
+    estadisticas = {
+        "total_autos": ultima_fila.contadorAutos,
+        "clientes_perdidos": metricas["clientes_perdidos_por_capacidad"],
+        "porcentaje_tunel_bloqueado": round(metricas["porcentaje_tiempo_tunel_bloqueado"], 1),
+        "horas_extras_minutos": int(metricas["tiempo_horas_extras_minutos"]),
+        "cola_maxima": max((len(f.colaLavado.autos) for f in motor.vector_estado.filas), default=0),
+    }
+
     filas_serializables = [f.como_dict() for f in motor.vector_estado.filas]
-    return render_template("resultados.html", filas=filas_serializables)
+    return render_template("resultados.html", filas=filas_serializables, estadisticas=estadisticas)
