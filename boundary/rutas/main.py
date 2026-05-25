@@ -43,7 +43,8 @@ def simulacion_ejecutar():
     motor.ejecutar()
 
     ultima_fila = motor.vector_estado.getActual()
-    metricas = motor.registro.calcular_metricas_finales(ultima_fila)
+    primera_fila = motor.vector_estado.filas[0]
+    metricas = motor.registro.calcular_metricas_finales(ultima_fila, tiempo_inicio=primera_fila.hora_simulada)
     estadisticas = {
         "total_autos": ultima_fila.contadorAutos,
         "clientes_perdidos": metricas["clientes_perdidos_por_capacidad"],

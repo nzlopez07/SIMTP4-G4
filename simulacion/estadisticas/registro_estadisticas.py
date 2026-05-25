@@ -57,14 +57,15 @@ class RegistroEstadisticas:
 
     def registrar_fin_simulacion(self, tiempo_fin_simulacion, tiempo_cierre, fila=None):
         self.tiempoFinSimulacion = tiempo_fin_simulacion
-        self.tiempoHorasExtras = self._calcular_horas_extras(
-            tiempo_fin_simulacion,
-            tiempo_cierre,
-        )
 
         if fila is not None:
             fila.tiempoFinSimulacion = tiempo_fin_simulacion
-            fila.tiempoHorasExtras = self.tiempoHorasExtras
+            self.tiempoHorasExtras = fila.tiempoHorasExtras
+        else:
+            self.tiempoHorasExtras = self._calcular_horas_extras(
+                tiempo_fin_simulacion,
+                tiempo_cierre,
+            )
 
     def calcular_metricas_finales(self, fila, tiempo_inicio=None, tiempo_cierre=None):
         """Devuelve las tres metricas pedidas por la consigna."""

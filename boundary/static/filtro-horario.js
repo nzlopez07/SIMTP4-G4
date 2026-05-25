@@ -4,7 +4,6 @@
   var COL_HORA   = 1;
   var COL_EVENTO = 2;
 
-  // Solo acepta HH:MM:SS: uno o más dígitos, dos bloques de exactamente dos dígitos.
   var RE_FORMATO = /^\d+:\d{2}:\d{2}$/;
 
   function formatoValido(valor) {
@@ -44,20 +43,32 @@
       : visibles + " de " + total + " filas";
   }
 
-  function aplicarFiltro(tbody, desde, hasta) {
+  function aplicarFiltro(tbody, desde, cantRegistros) {
+    var contadorDesde = 0;
+
     Array.from(tbody.rows).forEach(function (row) {
       var horaTotal = parseFloat(row.dataset.horaTotal);
-      var visible =
-        (desde === null || horaTotal >= desde) &&
-        (hasta === null || horaTotal <= hasta);
+      var pasaDesde = desde === null || horaTotal >= desde;
+
+      var visible;
+      if (!pasaDesde) {
+        visible = false;
+      } else if (cantRegistros === null) {
+        visible = true;
+      } else {
+        visible = contadorDesde < cantRegistros;
+        contadorDesde++;
+      }
+
       row.style.display = visible ? "" : "none";
     });
+
     actualizarContador(tbody);
   }
 
-  function limpiarFiltro(tbody, inputDesde, inputHasta) {
+  function limpiarFiltro(tbody, inputDesde, inputCantRegistros) {
     inputDesde.value = "";
-    inputHasta.value = "";
+    if (inputCantRegistros) inputCantRegistros.value = "";
     Array.from(tbody.rows).forEach(function (r) { r.style.display = ""; });
     actualizarContador(tbody);
   }
@@ -72,14 +83,14 @@
     precomputarHoras(tbody);
     actualizarContador(tbody);
 
-    var btnAplicar = document.getElementById("filtro-aplicar");
-    var btnLimpiar = document.getElementById("filtro-limpiar");
-    var inputDesde = document.getElementById("filtro-desde");
-    var inputHasta = document.getElementById("filtro-hasta");
+    var btnAplicar       = document.getElementById("filtro-aplicar");
+    var btnLimpiar       = document.getElementById("filtro-limpiar");
+    var inputDesde       = document.getElementById("filtro-desde");
+    var inputCantRegistros = document.getElementById("filtro-cant-registros");
 
     function ejecutarFiltro() {
       var desdeStr = inputDesde ? inputDesde.value.trim() : "";
-      var hastaStr = inputHasta ? inputHasta.value.trim() : "";
+      var cantStr  = inputCantRegistros ? inputCantRegistros.value.trim() : "";
 
       if (desdeStr !== "" && !formatoValido(desdeStr)) {
         mostrarModalError(
@@ -90,29 +101,28 @@
         return;
       }
 
-      if (hastaStr !== "" && !formatoValido(hastaStr)) {
+      var cantRegistros = cantStr !== "" ? parseInt(cantStr, 10) : null;
+      if (cantRegistros !== null && (isNaN(cantRegistros) || cantRegistros < 1)) {
         mostrarModalError(
-          "Formato de hora incorrecto",
-          "El campo «Hasta» debe respetar el formato HH:MM:SS. " +
-          "Solo se permiten dígitos (0–9) y el carácter «:»."
+          "Cantidad inválida",
+          "El campo «Cantidad Registros» debe ser un número entero mayor a 0."
         );
         return;
       }
 
       var desde = desdeStr !== "" ? parseHoras(desdeStr) : null;
-      var hasta = hastaStr !== "" ? parseHoras(hastaStr) : null;
-      aplicarFiltro(tbody, desde, hasta);
+      aplicarFiltro(tbody, desde, cantRegistros);
     }
 
     if (btnAplicar) btnAplicar.addEventListener("click", ejecutarFiltro);
 
     if (btnLimpiar) {
       btnLimpiar.addEventListener("click", function () {
-        limpiarFiltro(tbody, inputDesde, inputHasta);
+        limpiarFiltro(tbody, inputDesde, inputCantRegistros);
       });
     }
 
-    [inputDesde, inputHasta].forEach(function (input) {
+    [inputDesde, inputCantRegistros].forEach(function (input) {
       if (input) {
         input.addEventListener("keydown", function (e) {
           if (e.key === "Enter") ejecutarFiltro();
