@@ -1,7 +1,6 @@
-from flask import Blueprint, jsonify, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, url_for
 
 from simulacion.motor import MotorSimulacion
-from simulacion.estadisticas import FilaVectorEstado, RegistroEstadisticas
 
 bp = Blueprint("main", __name__)
 
@@ -30,17 +29,8 @@ def simulacion_ejecutar():
             cant_sim=cant_sim,
             seed=seed,
         )
-
-    # crear motor con vector y generador por defecto
-    ## A lo sumo guardar la seed y pasársela por separado al motor para que la use en su generador???
+    # Creacion del controller
     motor = MotorSimulacion(seed, hora_fin, cant_sim)
     motor.ejecutar()
     filas_serializables = [f.como_dict() for f in motor.vector_estado.filas]
     return render_template("resultados.html", filas=filas_serializables)
-
-
-@bp.route("/simulacion/resultados")
-def simulacion_resultados():
-    # ruta placeholder: sin almacenamiento persistente no hay resultados previos
-    return render_template("resultados.html", filas=[])
-    # El resultado no debera encontrarse aparte de las estadisticas. Las estadisticas se mostraran encima de la tabla. A su vez habra un boton para copiar todos los datos de las variables automaticamente.

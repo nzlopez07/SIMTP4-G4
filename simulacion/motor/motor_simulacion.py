@@ -23,8 +23,6 @@ class MotorSimulacion:
 
         self._fila_anterior = None
         self._fila_actual = None
-        self._reloj = 0.0
-        self._iteracion = 0
 
         # Punto de fin absoluto: hora_fin se interpreta como horas corridas desde medianoche del día de inicio. "21:00" con fin a las 21:00 del día 1;
         # "72:00" con fin a medianoche del día 4 (3 días completos de servicio).
@@ -84,7 +82,7 @@ class MotorSimulacion:
     def generarRND(self) -> float:
         return random.random()
 
-    def ejecutar(self, max_iteraciones: int | None = None, tiempo_max=None) -> None:
+    def ejecutar(self, max_iteraciones: int | None = None) -> None:
         from simulacion.eventos.evento_inicializacion import EventoInicializacion
         from simulacion.eventos.evento_llegada import EventoLlegada
 

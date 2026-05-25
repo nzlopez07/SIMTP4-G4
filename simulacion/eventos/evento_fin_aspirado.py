@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from simulacion.eventos.evento import Evento
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 
@@ -69,36 +67,6 @@ class EventoFinAspirado(Evento):
         self.fila_actual.tiempoTunelBloqueado += self.tiempo - inicio
         self.fila_actual.tunel.horaInicioBloqueado = None
 
-    def _ocupar_puesto_aspirado(self, motor, puesto, auto, generador):
-        auto.estado = "EnAspirado"
-        puesto.ocupar(auto)
-
-        rnd = motor.generarRND()
-        tiempo_fin = self.tiempo + generador.tiempoAspirado(rnd)
-
-        if puesto.id == 1:
-            self.fila_actual.rndAspirado1 = rnd
-            self.fila_actual.tiempoAspirado1 = tiempo_fin
-        else:
-            self.fila_actual.rndAspirado2 = rnd
-            self.fila_actual.tiempoAspirado2 = tiempo_fin
-
-        motor.calendario.agregar_evento(EventoFinAspirado(tiempo_fin, puesto.id))
-
-    def _iniciar_lavado_desde_cola(self, motor):
-        from simulacion.eventos.evento_fin_lavado import EventoFinLavado
-
-        generador = GestorVariablesAleatorias()
-        auto = self.fila_actual.autos.popleft()
-        auto.estado = "EnLavado"
-
-        self.fila_actual.colaAutos -= 1
-        self.fila_actual.tunel.ocupar(auto)
-        self.fila_actual.rndLavado = motor.generarRND()
-        self.fila_actual.tiempoLavado = self.tiempo + generador.tiempoLavado(self.fila_actual.rndLavado)
-
-        motor.calendario.agregar_evento(EventoFinLavado(self.fila_actual.tiempoLavado))
-
     def _obtener_puesto(self, fila):
         if self.puesto_id == 1:
             return fila.puestoAspirado1
@@ -112,12 +80,3 @@ class EventoFinAspirado(Evento):
         fila_actual.iteracion = fila_anterior.iteracion + 1
         fila_actual.hora_simulada = self.tiempo
         fila_actual.evento_simulado = f"{self.nombre} puesto {self.puesto_id}"
-
-    def _obtener_fila_base(self, motor):
-        if motor.fila_actual is not None:
-            return motor.fila_actual
-
-        return motor.vector_estado.getActual()
-
-    def _copiar_fila(self, fila):
-        return deepcopy(fila)

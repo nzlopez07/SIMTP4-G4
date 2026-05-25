@@ -1,7 +1,4 @@
-from copy import deepcopy
-
 from simulacion.eventos.evento import Evento
-from simulacion.eventos.evento_fin_aspirado import EventoFinAspirado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 
 
@@ -76,44 +73,7 @@ class EventoFinLavado(Evento):
 
         return None
 
-    def _ocupar_puesto_aspirado(self, motor, puesto, auto, generador):
-        auto.estado = "EnAspirado"
-        puesto.ocupar(auto)
-
-        rnd = motor.generarRND()
-        tiempo_fin = self.tiempo + generador.tiempoAspirado(rnd)
-
-        if puesto.id == 1:
-            self.fila_actual.rndAspirado1 = rnd
-            self.fila_actual.tiempoAspirado1 = tiempo_fin
-        else:
-            self.fila_actual.rndAspirado2 = rnd
-            self.fila_actual.tiempoAspirado2 = tiempo_fin
-
-        motor.calendario.agregar_evento(EventoFinAspirado(tiempo_fin, puesto.id))
-
-    def _iniciar_lavado_desde_cola(self, motor):
-        generador = GestorVariablesAleatorias()
-        auto = self.fila_actual.autos.popleft()
-        auto.estado = "EnLavado"
-
-        self.fila_actual.colaAutos -= 1
-        self.fila_actual.tunel.ocupar(auto)
-        self.fila_actual.rndLavado = motor.generarRND()
-        self.fila_actual.tiempoLavado = self.tiempo + generador.tiempoLavado(self.fila_actual.rndLavado)
-
-        motor.calendario.agregar_evento(EventoFinLavado(self.fila_actual.tiempoLavado))
-
     def _preparar_fila(self, fila_actual, fila_anterior):
         fila_actual.iteracion = fila_anterior.iteracion + 1
         fila_actual.hora_simulada = self.tiempo
         fila_actual.evento_simulado = self.nombre
-
-    def _obtener_fila_base(self, motor):
-        if motor.fila_actual is not None:
-            return motor.fila_actual
-
-        return motor.vector_estado.getActual()
-
-    def _copiar_fila(self, fila):
-        return deepcopy(fila)
