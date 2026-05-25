@@ -69,6 +69,7 @@ class EventoFinAspirado(Evento):
             return
 
         self.fila_actual.tiempoTunelBloqueado += self.tiempo - inicio
+        self.fila_actual.tiempoInicioBloqueoTunel = None
 
     def _obtener_puesto(self, fila):
         if self.puesto_id == 1:
