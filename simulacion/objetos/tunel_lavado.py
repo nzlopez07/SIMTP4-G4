@@ -33,3 +33,11 @@ class TunelLavado:
     def bloquear(self, tiempo_inicio):
         self.estado = "Bloqueado"
         self.horaInicioBloqueado = tiempo_inicio
+
+    def como_dict(self):
+        return {
+            "estado": self.estado,
+            "auto_actual": self.auto_actual,
+            "horaInicioBloqueado": self.horaInicioBloqueado,
+        }
+

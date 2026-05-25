@@ -22,3 +22,10 @@ class PuestoAspirado:
         #     raise Exception("El puesto de aspirado ya está libre.")
         self.estado = "Libre"
         self.auto_actual = None
+
+    def como_dict(self):
+        return {
+            "id": self.id,
+            "estado": self.estado,
+            "auto_actual": self.auto_actual,
+        }

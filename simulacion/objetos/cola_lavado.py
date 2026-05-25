@@ -29,3 +29,12 @@ class ColaLavado:
         if self.esta_vacia():
             raise Exception("No se puede desencolar: la cola de lavado está vacía.")
         return self.autos.popleft()
+
+    def contar(self):
+        """Cuenta la cantidad de autos en la cola"""
+        return len(self.autos)
+
+    def como_dict(self):
+        while (i = 0; i < self.contar(); i++) {
+            self.autos[i].como_dict()
+        }
