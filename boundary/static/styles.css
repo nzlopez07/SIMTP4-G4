@@ -645,6 +645,84 @@ body {
     }
 }
 
+/* --- Barra de filtro horario --- */
+.filtro-bar {
+    background: var(--blanco);
+    border: 1px solid rgba(24, 95, 165, 0.12);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.85rem;
+    box-shadow: 0 1px 4px rgba(24, 95, 165, 0.06);
+}
+
+.filtro-bar__inner {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.filtro-bar__label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--azul-generico);
+    white-space: nowrap;
+}
+
+.filtro-bar__inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.filtro-bar__field-label {
+    font-size: 0.78rem;
+    color: #666;
+    white-space: nowrap;
+}
+
+.filtro-bar__input {
+    width: 100px !important;
+    height: 30px !important;
+    font-size: 0.82rem !important;
+    padding: 0 0.45rem !important;
+    font-family: 'Courier New', monospace;
+}
+
+.filtro-bar__sep {
+    font-size: 0.78rem;
+    color: #999;
+}
+
+.filtro-bar__actions {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.filtro-bar__btn {
+    height: 30px !important;
+    padding: 0 0.85rem !important;
+    font-size: 0.78rem !important;
+}
+
+.filtro-bar__hint {
+    font-size: 0.7rem;
+    color: #aaa;
+    white-space: nowrap;
+    font-style: italic;
+}
+
+.filtro-bar__count {
+    margin-left: auto;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #888;
+    white-space: nowrap;
+}
+
 /* --- Footer --- */
 footer {
     background: var(--azul-oscuro);

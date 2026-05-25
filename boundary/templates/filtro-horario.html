@@ -1,0 +1,46 @@
+{% if filas %}
+<div class="filtro-bar" id="filtro-horario" role="search" aria-label="Filtrar por rango horario">
+  <div class="filtro-bar__inner">
+
+    <span class="filtro-bar__label">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+        aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      Filtrar por hora
+    </span>
+
+    <div class="filtro-bar__inputs">
+      <label for="filtro-desde" class="filtro-bar__field-label">Desde</label>
+      <input
+        class="form-input filtro-bar__input"
+        type="text"
+        id="filtro-desde"
+        placeholder="ej. 09:00:00"
+        aria-label="Hora de inicio (HH:MM:SS)"
+      >
+
+      <label for="filtro-hasta" class="filtro-bar__field-label">Hasta</label>
+      <input
+        class="form-input filtro-bar__input"
+        type="text"
+        id="filtro-hasta"
+        placeholder="ej. 48:00:00"
+        aria-label="Hora de fin (HH:MM:SS)"
+      >
+    </div>
+
+    <div class="filtro-bar__actions">
+      <button class="btn-primary filtro-bar__btn" type="button" id="filtro-aplicar">Aplicar</button>
+      <button class="btn-ghost filtro-bar__btn" type="button" id="filtro-limpiar">Limpiar</button>
+    </div>
+
+    <span class="filtro-bar__hint">formato&nbsp;HH:MM:SS&nbsp;&mdash;&nbsp;hs.&nbsp;acumuladas&nbsp;(día&nbsp;2&nbsp;desde&nbsp;24:00:00)</span>
+
+    <span class="filtro-bar__count" id="filtro-count" aria-live="polite"></span>
+
+  </div>
+</div>
+{% endif %}

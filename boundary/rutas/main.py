@@ -1,9 +1,7 @@
-from flask import Blueprint, render_template, request, url_for
-
+from flask import Blueprint, render_template, request
 from simulacion.motor import MotorSimulacion
 
 bp = Blueprint("main", __name__)
-
 
 @bp.route("/")
 def index():

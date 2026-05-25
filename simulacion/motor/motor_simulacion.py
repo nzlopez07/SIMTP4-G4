@@ -115,7 +115,7 @@ class MotorSimulacion:
             return
         fila_final = self._vector_estado.getActual()
         hora_cierre = self._resolver_hora_cierre()
-        self._registro.registrar_fin_simulacion(fila_final.hora_simulada, hora_cierre)
+        self._registro.registrar_fin_simulacion(fila_final.hora_simulada, hora_cierre, fila_final)
 
     def _resolver_hora_cierre(self) -> datetime:
         if self._datetime_fin is not None:
