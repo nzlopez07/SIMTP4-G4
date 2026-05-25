@@ -30,3 +30,6 @@ class TunelLavado:
     def bloquear(self, tiempo_inicio):
         self.estado = "Bloqueado"
         self.horaInicioBloqueado = tiempo_inicio
+
+
+    
