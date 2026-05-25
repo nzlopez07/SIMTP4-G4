@@ -32,6 +32,11 @@ class EventoFinAspirado(Evento):
         self.auto_finalizado.estado = "Finalizado"
         self.puesto.liberar()
 
+        if self.puesto.id == 1:
+            self.fila_actual.tiempoAspirado1 = None
+        elif self.puesto.id == 2:
+            self.fila_actual.tiempoAspirado2 = None
+
         if self.fila_actual.tunel.esta_bloqueado():
             self._desbloquear_tunel_y_pasar_auto_a_aspirado(motor)
 

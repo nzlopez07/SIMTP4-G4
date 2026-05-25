@@ -23,6 +23,7 @@ class EventoFinLavado(Evento):
         fila_anterior = self._obtener_fila_base(motor)
         self.fila_actual = self._copiar_fila(fila_anterior)
         self._preparar_fila(self.fila_actual, fila_anterior)
+        self.fila_actual.tiempoLavado = None
 
         self.auto = self.fila_actual.tunel.auto_actual
 
