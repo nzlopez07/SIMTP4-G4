@@ -2,9 +2,9 @@
 
 {% block navbar_back %}
 <a href="{{ url_for('main.index') }}" class="btn btn-nav">
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="15 18 9 12 15 6"/>
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 18 9 12 15 6" />
   </svg>
   Inicio
 </a>
@@ -27,29 +27,31 @@
         <div class="form-group-row">
           <div class="form-group">
             <label class="form-label" for="hora_inicio">Horario desde</label>
-            <input class="form-input" value="09:00:00" disabled/>
+            <input class="form-input" value="09:00:00" disabled />
           </div>
           <div class="form-group">
             <label class="form-label" for="hora_fin">Horario hasta</label>
-            <input class="form-input" type="text" id="hora_fin" name="hora_fin"
-              value="{{ hora_fin or '' }}" placeholder="HH:MM:SS"
-              pattern="[0-9]{1,3}:[0-5][0-9]:[0-5][0-9]" title="Formato HH:MM:SS — puede superar las 24hs (ej: 27:00:00)" />
+            <input class="form-input" type="text" id="hora_fin" name="hora_fin" value="{{ hora_fin or '' }}"
+              placeholder="HH:MM:SS" pattern="[0-9]{1,3}:[0-5][0-9]:[0-5][0-9]"
+              title="Formato HH:MM:SS — puede superar las 24hs (ej: 27:00:00)" />
           </div>
           <div class="form-group">
             <label class="form-label" for="cant_sim">Cantidad de simulaciones</label>
-            <input class="form-input" type="number" id="cant_sim" name="cant_sim"
-              value="{{ cant_sim or '' }}" />
+            <input class="form-input" type="number" id="cant_sim" name="cant_sim" value="{{ cant_sim or '' }}" />
           </div>
         </div>
         <div class="info-callout">
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
             class="info-callout-icon">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
           <div>
             <span>El horario hasta puede superar las 24 hs (ej: <code>27:00:00</code>).</span>
-            <span>La simulación se detiene al alcanzar el horario <em>o</em> las 100 000 iteraciones, lo que ocurra primero.</span>
+            <span>La simulación se detiene al alcanzar el horario <em>o</em> las 100 000 iteraciones, lo que ocurra
+              primero.</span>
           </div>
         </div>
 
@@ -58,8 +60,8 @@
             Seed
             <span class="label-optional">opcional</span>
           </label>
-          <input class="form-input" type="number" id="seed" name="seed"
-            value="{{ seed or '' }}" placeholder="Ej: 42 — para resultados reproducibles" />
+          <input class="form-input" type="number" id="seed" name="seed" value="{{ seed or '' }}"
+            placeholder="Ej: 42 — para resultados reproducibles" />
           <p class="form-hint">Si no ingresás una seed, la simulación usará valores aleatorios cada vez.</p>
         </div>
 
@@ -68,7 +70,7 @@
           <button type="submit" class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3"/>
+              <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
             Ejecutar simulación
           </button>
@@ -80,17 +82,6 @@
 </div>
 
 {% include "modal-error.html" %}
-
-<div class="modal-overlay" id="error-modal-conflicto" style="display:none" onclick="if(event.target===this)_cerrarModalConflicto()">
-  <div class="modal-card">
-    <h2 class="modal-title">Parámetros en conflicto</h2>
-    <p class="modal-message">Solo podés completar uno de los campos: «Horario hasta» o «Cantidad de simulaciones», no ambos a la vez.</p>
-    <div class="modal-actions">
-      <button class="btn btn-primary" onclick="_cerrarModalConflicto()">Entendido</button>
-    </div>
-  </div>
-</div>
-
 <script src="{{ url_for('static', filename='formulario-validacion.js') }}"></script>
 
 {% endblock %}

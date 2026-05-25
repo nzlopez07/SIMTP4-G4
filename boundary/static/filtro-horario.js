@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var COL_HORA = 1;
+  var COL_HORA   = 1;
   var COL_EVENTO = 2;
 
   // Solo acepta HH:MM:SS: uno o más dígitos, dos bloques de exactamente dos dígitos.
@@ -17,49 +17,11 @@
     return parseInt(partes[0], 10) + parseInt(partes[1], 10) / 60 + parseInt(partes[2], 10) / 3600;
   }
 
-  // ── Modal de error ────────────────────────────────────────────────────────────
-  function mostrarModalError(titulo, mensaje) {
-    var existente = document.getElementById("error-modal");
-    if (existente) existente.remove();
-
-    var overlay = document.createElement("div");
-    overlay.className = "modal-overlay";
-    overlay.id = "error-modal";
-
-    var card = document.createElement("div");
-    card.className = "modal-card";
-    card.innerHTML =
-      '<h2 class="modal-title">' + titulo + "</h2>" +
-      '<p class="modal-message">' + mensaje + "</p>" +
-      '<div class="modal-actions">' +
-        '<button class="btn btn-primary" id="modal-error-cerrar">Entendido</button>' +
-      "</div>";
-
-    overlay.appendChild(card);
-    document.body.appendChild(overlay);
-
-    function cerrar() {
-      overlay.remove();
-      document.removeEventListener("keydown", onKeydown);
-    }
-
-    overlay.addEventListener("click", function (e) {
-      if (e.target === overlay) cerrar();
-    });
-    document.getElementById("modal-error-cerrar").addEventListener("click", cerrar);
-
-    function onKeydown(e) {
-      if (e.key === "Escape") cerrar();
-    }
-    document.addEventListener("keydown", onKeydown);
-  }
-
-  // ── Lógica de filtrado ────────────────────────────────────────────────────────
   function precomputarHoras(tbody) {
     var dia = 1;
     Array.from(tbody.rows).forEach(function (row) {
-      var horaSimulada = row.cells[COL_HORA] ? row.cells[COL_HORA].textContent.trim() : "";
-      var evento = row.cells[COL_EVENTO] ? row.cells[COL_EVENTO].textContent.trim() : "";
+      var horaSimulada = row.cells[COL_HORA]   ? row.cells[COL_HORA].textContent.trim()   : "";
+      var evento       = row.cells[COL_EVENTO] ? row.cells[COL_EVENTO].textContent.trim() : "";
 
       if (evento.includes("Nuevo día")) dia++;
 
@@ -69,7 +31,7 @@
   }
 
   function actualizarContador(tbody) {
-    var total = tbody.rows.length;
+    var total    = tbody.rows.length;
     var visibles = Array.from(tbody.rows).filter(function (r) {
       return r.style.display !== "none";
     }).length;
@@ -100,7 +62,6 @@
     actualizarContador(tbody);
   }
 
-  // ── Init ──────────────────────────────────────────────────────────────────────
   document.addEventListener("DOMContentLoaded", function () {
     var tabla = document.querySelector(".results-table");
     if (!tabla) return;

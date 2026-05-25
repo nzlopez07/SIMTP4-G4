@@ -645,6 +645,33 @@ body {
     }
 }
 
+/* --- Acciones de tabla (copiar CSV, etc.) --- */
+.tabla-acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 0.6rem;
+}
+
+.tabla-acciones__btn {
+    height: 30px;
+    padding: 0 0.85rem;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tabla-acciones__hint {
+    font-size: 0.75rem;
+    color: #aaa;
+}
+
+.tabla-acciones__hint--ok {
+    color: #16a34a;
+    font-weight: 500;
+}
+
 /* --- Barra de filtro horario --- */
 .filtro-bar {
     background: var(--blanco);
