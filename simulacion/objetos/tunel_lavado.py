@@ -1,4 +1,3 @@
-import datetime
 from simulacion.objetos.auto import Auto
 
 

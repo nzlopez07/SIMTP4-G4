@@ -79,10 +79,8 @@ class Evento(ABC):
     def _iniciar_lavado_desde_cola(self, motor):
         from simulacion.eventos.evento_fin_lavado import EventoFinLavado
         generador = GestorVariablesAleatorias()
-        auto = self.fila_actual.autos.popleft()
+        auto = self.fila_actual.colaLavado.desencolar_auto()
         auto.estado = "EnLavado"
-
-        self.fila_actual.colaAutos -= 1
         self.fila_actual.tunel.ocupar(auto)
         self.fila_actual.rndLavado = motor.generarRND()
         self.fila_actual.tiempoLavado = self.tiempo + generador.tiempoLavado(self.fila_actual.rndLavado)

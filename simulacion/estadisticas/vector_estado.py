@@ -1,9 +1,8 @@
 """Estructuras para el vector de estado de la simulacion."""
 
-from collections import deque
 from datetime import datetime, timedelta
 
-from simulacion.objetos import PuestoAspirado, TunelLavado
+from simulacion.objetos import ColaLavado, PuestoAspirado, TunelLavado
 
 
 def _serializar(valor):
@@ -39,8 +38,7 @@ class FilaVectorEstado:
         self.tiempoAspirado2 = None
 
         self.contadorAutos = 0
-        self.colaAutos = 0
-        self.autos = deque()
+        self.colaLavado = ColaLavado()
 
         self.clientesPerdidos = 0
         self.tiempoInicioBloqueoTunel = None
@@ -67,9 +65,9 @@ class FilaVectorEstado:
             "rnd_aspirado_1": self.rndAspirado1,
             "tiempo_aspirado_1": _serializar(self.tiempoAspirado1),
             "rnd_aspirado_2": self.rndAspirado2,
-            "tiempo_aspirado_2": self.tiempoAspirado2,
+            "tiempo_aspirado_2": _serializar(self.tiempoAspirado2),
             "contador_autos": self.contadorAutos,
-            "cola_autos": self.colaAutos,
+            "cola_autos": len(self.colaLavado.autos),
             "clientes_perdidos": self.clientesPerdidos,
             "tiempo_horas_extras": _serializar(self.tiempoHorasExtras),
             "tiempo_tunel_bloqueado": _serializar(self.tiempoTunelBloqueado),

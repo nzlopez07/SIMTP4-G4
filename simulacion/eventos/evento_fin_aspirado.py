@@ -36,7 +36,7 @@ class EventoFinAspirado(Evento):
             self._desbloquear_tunel_y_pasar_auto_a_aspirado(motor)
 
     def _generar_eventos(self, motor):
-        if self.fila_actual.tunel.esta_libre() and self.fila_actual.colaAutos > 0:
+        if self.fila_actual.tunel.esta_libre() and not self.fila_actual.colaLavado.esta_vacia():
             self._iniciar_lavado_desde_cola(motor)
 
     def _actualizar_estadisticas(self, motor):
