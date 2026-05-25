@@ -7,7 +7,6 @@ class EventoFinLavado(Evento):
 
     def __init__(self, tiempo):
         super().__init__(tiempo, "Fin lavado")
-        self.fila_actual = None
         self.auto = None
         self.bloqueo_iniciado = False
 
@@ -52,8 +51,8 @@ class EventoFinLavado(Evento):
 
         if puesto is None:
             self.auto.estado = "EsperandoAspirado"
-            self.fila_actual.tunel.estado = "Bloqueado"
-            self.fila_actual.tunel.horaInicioBloqueado = self.tiempo
+            self.fila_actual.tunel.bloquear(self.tiempo)
+            self.fila_actual.tiempoInicioBloqueoTunel = self.tiempo
             self.bloqueo_iniciado = True
             return
 
@@ -72,6 +71,34 @@ class EventoFinLavado(Evento):
                 return puesto
 
         return None
+
+    def _ocupar_puesto_aspirado(self, motor, puesto, auto, generador):
+        auto.estado = "EnAspirado"
+        puesto.ocupar(auto)
+
+        rnd = motor.generarRND()
+        tiempo_fin = self.tiempo + generador.tiempoAspirado(rnd)
+
+        if puesto.id == 1:
+            self.fila_actual.rndAspirado1 = rnd
+            self.fila_actual.tiempoAspirado1 = tiempo_fin
+        else:
+            self.fila_actual.rndAspirado2 = rnd
+            self.fila_actual.tiempoAspirado2 = tiempo_fin
+
+        motor.calendario.agregar_evento(EventoFinAspirado(tiempo_fin, puesto.id))
+
+    def _iniciar_lavado_desde_cola(self, motor):
+        generador = GestorVariablesAleatorias()
+        auto = self.fila_actual.autos.popleft()
+        auto.estado = "EnLavado"
+
+        self.fila_actual.colaAutos -= 1
+        self.fila_actual.tunel.ocupar(auto)
+        self.fila_actual.rndLavado = motor.generarRND()
+        self.fila_actual.tiempoLavado = self.tiempo + generador.tiempoLavado(self.fila_actual.rndLavado)
+
+        motor.calendario.agregar_evento(EventoFinLavado(self.fila_actual.tiempoLavado))
 
     def _preparar_fila(self, fila_actual, fila_anterior):
         fila_actual.iteracion = fila_anterior.iteracion + 1

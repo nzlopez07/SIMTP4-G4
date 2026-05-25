@@ -43,6 +43,8 @@ class FilaVectorEstado:
         self.autos = deque()
 
         self.clientesPerdidos = 0
+        self.tiempoInicioBloqueoTunel = None
+        self.tiempoFinSimulacion = None
         self.tiempoHorasExtras = timedelta(0)
         self.tiempoTunelBloqueado = timedelta(0)
 
@@ -65,13 +67,25 @@ class FilaVectorEstado:
             "rnd_aspirado_1": self.rndAspirado1,
             "tiempo_aspirado_1": _serializar(self.tiempoAspirado1),
             "rnd_aspirado_2": self.rndAspirado2,
-            "tiempo_aspirado_2": _serializar(self.tiempoAspirado2),
+            "tiempo_aspirado_2": self.tiempoAspirado2,
             "contador_autos": self.contadorAutos,
             "cola_autos": self.colaAutos,
             "clientes_perdidos": self.clientesPerdidos,
             "tiempo_horas_extras": _serializar(self.tiempoHorasExtras),
             "tiempo_tunel_bloqueado": _serializar(self.tiempoTunelBloqueado),
         }
+
+    def _serializar_valor(self, valor):
+        if isinstance(valor, datetime):
+            return valor.isoformat()
+
+        if isinstance(valor, time):
+            return valor.isoformat()
+
+        if isinstance(valor, timedelta):
+            return valor.total_seconds() / 60
+
+        return valor
 
 
 class VectorEstado:

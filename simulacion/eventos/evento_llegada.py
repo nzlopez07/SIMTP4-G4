@@ -2,14 +2,16 @@ from datetime import datetime, time, timedelta
 
 from simulacion.eventos.evento import Evento
 from simulacion.eventos.evento_fin_lavado import EventoFinLavado
-
-from simulacion.estadisticas import FilaVectorEstado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 from simulacion.objetos import Auto
 
 
 class EventoLlegada(Evento):
-    def __init__(self, tiempo: datetime):
+    """Evento que procesa la llegada de un auto al lavadero."""
+
+    HORA_CIERRE = time(21, 0, 0)
+
+    def __init__(self, tiempo):
         super().__init__(tiempo, "Llegada")
         self.fila_actual = None
         self._fila_anterior = None

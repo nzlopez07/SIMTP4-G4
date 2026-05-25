@@ -1,12 +1,15 @@
 from datetime import datetime, time
+
+from simulacion.estadisticas import FilaVectorEstado
 from simulacion.eventos.evento import Evento
 from simulacion.eventos.evento_llegada import EventoLlegada
-from simulacion.estadisticas import FilaVectorEstado
-from simulacion.objetos import TunelLavado, PuestoAspirado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
+from simulacion.objetos import PuestoAspirado, TunelLavado
 
 
 class EventoInicializacion(Evento):
+    """Evento inicial: crea la primera fila y agenda la primera llegada."""
+
     def __init__(self):
         t = datetime.combine(datetime.now(), time(9, 0, 0))
         super().__init__(t, "Inicialización")
@@ -31,7 +34,3 @@ class EventoInicializacion(Evento):
     def _generar_eventos(self, motor):
         '''Agregar el evento a la cola'''
         motor.calendario.agregar_evento(EventoLlegada(self._primera_fila.tiempoLlegada))
-
-    def _actualizar_estadisticas(self, motor):
-        '''Agregar la fila al vector de estado'''
-        motor.agregar_fila_vector(self._primera_fila)
