@@ -84,12 +84,11 @@ class MotorSimulacion:
 
     def ejecutar(self, max_iteraciones: int | None = None) -> None:
         from simulacion.eventos.evento_inicializacion import EventoInicializacion
-        from simulacion.eventos.evento_llegada import EventoLlegada
 
         if max_iteraciones is not None:
             self._cant_sim = max_iteraciones
 
-        EventoInicializacion().ejecutar(self)
+        EventoInicializacion().procesar(self)
 
         while not self._calendario.esta_vacio():
             if self._condicion_de_parada_alcanzada():
@@ -100,11 +99,7 @@ class MotorSimulacion:
         self._finalizar()
 
     def _despachar(self, evento) -> None:
-        from simulacion.eventos.evento_llegada import EventoLlegada
-        if isinstance(evento, EventoLlegada):
-            evento.ejecutar(self, self._fila_actual)
-        else:
-            evento.procesar(self)
+        evento.procesar(self)
 
     def _condicion_de_parada_alcanzada(self) -> bool:
         if self._cant_sim is not None and len(self._vector_estado) >= self._cant_sim:

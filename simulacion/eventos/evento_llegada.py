@@ -11,61 +11,64 @@ from simulacion.objetos import Auto
 class EventoLlegada(Evento):
     def __init__(self, tiempo: datetime):
         super().__init__(tiempo, "Llegada")
+        self.fila_actual = None
+        self._fila_anterior = None
+        self._auto = None
+        self._generador = None
+        self._termino_anticipado = False
 
-    def ejecutar(self, motor, filaAnterior):
-        filaActual = self.copiarFila(filaAnterior)
-        filaActual.iteracion = filaAnterior.iteracion + 1
-        filaActual.hora_simulada = self.tiempo
-        filaActual.evento_simulado = self.nombre
-       
-        # Generar el nuevo auto
-        filaActual.contadorAutos = filaAnterior.contadorAutos + 1
-        id = filaActual.contadorAutos
-        auto = Auto(id, self.tiempo)  # El estado se asignará más adelante
+    def _ejecutar(self, motor):
+        self._fila_anterior = motor.fila_actual
+        self.fila_actual = self._copiar_fila(self._fila_anterior)
+        self.fila_actual.iteracion = self._fila_anterior.iteracion + 1
+        self.fila_actual.hora_simulada = self.tiempo
+        self.fila_actual.evento_simulado = self.nombre
 
-        
-        # Validar que el reloj es menor a las 21:00
+        self.fila_actual.contadorAutos = self._fila_anterior.contadorAutos + 1
+        id = self.fila_actual.contadorAutos
+        self._auto = Auto(id, self.tiempo)
+
         if self.tiempo.time() > time(21, 0, 0):
-            filaActual.accionLlegada = "Fuera de horario"
+            self.fila_actual.accionLlegada = "Fuera de horario"
+            self._termino_anticipado = True
+            return
 
-            from simulacion.eventos.evento_nuevo_dia import EventoNuevoDia
-            siguiente_dia = (self.tiempo + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
-            motor.calendario.agregar_evento(EventoNuevoDia(siguiente_dia))
+        self._generador = GestorVariablesAleatorias()
+        self.fila_actual.rndLlegada = motor.generarRND()
+        self.fila_actual.tiempoLlegada = self.tiempo + self._generador.tiempoLlegada(self.fila_actual.rndLlegada)
+        motor.calendario.agregar_evento(EventoLlegada(self.fila_actual.tiempoLlegada))
 
-            return motor.agregar_fila_vector(filaActual)
+        if self._fila_anterior.colaAutos >= 5:
+            self.fila_actual.accionLlegada = f"A{id} se retira"
+            self.fila_actual.clientesPerdidos = self._fila_anterior.clientesPerdidos + 1
+            self._termino_anticipado = True
+            return
 
-        generador = GestorVariablesAleatorias()
+        self.fila_actual.accionLlegada = f"A{id} ingresa"
 
-        # Generar la próxima llegada siempre, independientemente del estado de la cola
-        filaActual.rndLlegada = motor.generarRND()
-        filaActual.tiempoLlegada = self.tiempo + generador.tiempoLlegada(filaActual.rndLlegada)
-        motor.calendario.agregar_evento(EventoLlegada(filaActual.tiempoLlegada))
+    def _generar_eventos(self, motor):
+        if self._termino_anticipado:
+            if self.fila_actual.accionLlegada == "Fuera de horario":
+                from simulacion.eventos.evento_nuevo_dia import EventoNuevoDia
+                siguiente_dia = (self.tiempo + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
+                motor.calendario.agregar_evento(EventoNuevoDia(siguiente_dia))
+            return
 
-        # validar que la cola de autos no esté llena (max 5)
-        if filaAnterior.colaAutos >= 5:
-            filaActual.accionLlegada = f"A{id} se retira"
-            filaActual.clientesPerdidos = filaAnterior.clientesPerdidos + 1
-            return motor.agregar_fila_vector(filaActual)
-
-        filaActual.accionLlegada = f"A{id} ingresa"
-
-        # Generar evento fin lavado
-        if not filaAnterior.tunel.esta_libre():
-            filaActual.colaAutos = filaAnterior.colaAutos + 1
-            auto.estado = "EnCola"
-            filaActual.autos.append(auto)
+        if not self._fila_anterior.tunel.esta_libre():
+            self.fila_actual.colaAutos = self._fila_anterior.colaAutos + 1
+            self._auto.estado = "EnCola"
+            self.fila_actual.autos.append(self._auto)
         else:
-            auto.estado = "EnLavado"
-            filaAnterior.tunel.ocupar(auto)
+            self._auto.estado = "EnLavado"
+            self._fila_anterior.tunel.ocupar(self._auto)
+            self.fila_actual.rndLavado = motor.generarRND()
+            self.fila_actual.tiempoLavado = self.tiempo + self._generador.tiempoLavado(self.fila_actual.rndLavado)
+            motor.calendario.agregar_evento(EventoFinLavado(self.fila_actual.tiempoLavado))
 
-            filaActual.rndLavado = motor.generarRND()
-            filaActual.tiempoLavado = self.tiempo + generador.tiempoLavado(filaActual.rndLavado)
-            motor.calendario.agregar_evento(EventoFinLavado(filaActual.tiempoLavado))
+    def _actualizar_estadisticas(self, motor):
+        motor.agregar_fila_vector(self.fila_actual)
 
-        return motor.agregar_fila_vector(filaActual)
-
-
-    def copiarFila(self, filaAnterior):
+    def _copiar_fila(self, fila_anterior):
         """" 
         Copiar los valores necesarios de la fila anterior a la actual 
         Datos que se tienen que copiar:
@@ -88,19 +91,19 @@ class EventoLlegada(Evento):
 
         fila = FilaVectorEstado()
 
-        fila.tiempoLavado = filaAnterior.tiempoLavado
-        fila.tiempoAspirado1 = filaAnterior.tiempoAspirado1
-        fila.tiempoAspirado2 = filaAnterior.tiempoAspirado2
+        fila.tiempoLavado = fila_anterior.tiempoLavado
+        fila.tiempoAspirado1 = fila_anterior.tiempoAspirado1
+        fila.tiempoAspirado2 = fila_anterior.tiempoAspirado2
 
-        fila.colaAutos = filaAnterior.colaAutos
-        fila.autos = filaAnterior.autos
+        fila.colaAutos = fila_anterior.colaAutos
+        fila.autos = fila_anterior.autos
 
-        fila.clientesPerdidos = filaAnterior.clientesPerdidos
-        fila.tiempoHorasExtras = filaAnterior.tiempoHorasExtras
-        fila.tiempoTunelBloqueado = filaAnterior.tiempoTunelBloqueado
+        fila.clientesPerdidos = fila_anterior.clientesPerdidos
+        fila.tiempoHorasExtras = fila_anterior.tiempoHorasExtras
+        fila.tiempoTunelBloqueado = fila_anterior.tiempoTunelBloqueado
 
-        fila.tunel = filaAnterior.tunel
-        fila.puestoAspirado1 = filaAnterior.puestoAspirado1
-        fila.puestoAspirado2 = filaAnterior.puestoAspirado2
+        fila.tunel = fila_anterior.tunel
+        fila.puestoAspirado1 = fila_anterior.puestoAspirado1
+        fila.puestoAspirado2 = fila_anterior.puestoAspirado2
 
         return fila

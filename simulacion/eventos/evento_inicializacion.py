@@ -8,29 +8,30 @@ from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 
 class EventoInicializacion(Evento):
     def __init__(self):
-        t = datetime.combine(datetime.now(), time(9,0,0))
+        t = datetime.combine(datetime.now(), time(9, 0, 0))
         super().__init__(t, "Inicialización")
+        self._primera_fila = None
 
-    def ejecutar(self, motor):
-        primera_fila = FilaVectorEstado()
-        primera_fila.iteracion = 1
-        primera_fila.hora_simulada = self.tiempo
-        primera_fila.evento_simulado = self.nombre
+    def _ejecutar(self, motor):
+        self._primera_fila = FilaVectorEstado()
+        self._primera_fila.iteracion = 1
+        self._primera_fila.hora_simulada = self.tiempo
+        self._primera_fila.evento_simulado = self.nombre
 
-        primera_fila.tunel = TunelLavado()
-        primera_fila.puestoAspirado1 = PuestoAspirado(1)
-        primera_fila.puestoAspirado2 = PuestoAspirado(2)
-
+        self._primera_fila.tunel = TunelLavado()
+        self._primera_fila.puestoAspirado1 = PuestoAspirado(1)
+        self._primera_fila.puestoAspirado2 = PuestoAspirado(2)
 
         generador = GestorVariablesAleatorias()
-
         # Generar un RND para la llegada del primer auto
-        primera_fila.rndLlegada = motor.generarRND()
+        self._primera_fila.rndLlegada = motor.generarRND()
         # Calcular el tiempo de llegada del primer auto | el generador retorna un timedelta
-        primera_fila.tiempoLlegada = self.tiempo + generador.tiempoLlegada(primera_fila.rndLlegada)
+        self._primera_fila.tiempoLlegada = self.tiempo + generador.tiempoLlegada(self._primera_fila.rndLlegada)
 
-        # Agregar el evento a la cola
-        motor.calendario.agregar_evento(EventoLlegada(primera_fila.tiempoLlegada))
+    def _generar_eventos(self, motor):
+        '''Agregar el evento a la cola'''
+        motor.calendario.agregar_evento(EventoLlegada(self._primera_fila.tiempoLlegada))
 
-        # Agregar la fila al vector de estado
-        motor.agregar_fila_vector(primera_fila)
+    def _actualizar_estadisticas(self, motor):
+        '''Agregar la fila al vector de estado'''
+        motor.agregar_fila_vector(self._primera_fila)
