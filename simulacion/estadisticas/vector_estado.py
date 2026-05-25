@@ -75,19 +75,6 @@ class FilaVectorEstado:
             "tiempo_tunel_bloqueado": _serializar(self.tiempoTunelBloqueado),
         }
 
-    def _serializar_valor(self, valor):
-        if isinstance(valor, datetime):
-            return valor.isoformat()
-
-        if isinstance(valor, time):
-            return valor.isoformat()
-
-        if isinstance(valor, timedelta):
-            return valor.total_seconds() / 60
-
-        return valor
-
-
 class VectorEstado:
     """Historial completo de filas generadas por la simulacion."""
 
@@ -96,11 +83,6 @@ class VectorEstado:
 
     def agregar(self, fila):
         self.filas.append(fila)
-
-    def getAnterior(self):
-        if len(self.filas) < 2:
-            raise Exception("Aun no existe vector estado anterior")
-        return self.filas[-2]
 
     def getActual(self):
         if len(self.filas) == 0:

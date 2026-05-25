@@ -1,4 +1,5 @@
 from simulacion.eventos.evento import Evento
+from simulacion.eventos.evento_fin_aspirado import EventoFinAspirado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 
 

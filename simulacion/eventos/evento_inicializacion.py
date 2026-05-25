@@ -34,3 +34,6 @@ class EventoInicializacion(Evento):
     def _generar_eventos(self, motor):
         '''Agregar el evento a la cola'''
         motor.calendario.agregar_evento(EventoLlegada(self._primera_fila.tiempoLlegada))
+
+    def _actualizar_estadisticas(self, motor):
+        motor.agregar_fila_vector(self._primera_fila)

@@ -1,9 +1,10 @@
+from abc import ABC, abstractmethod
 from copy import deepcopy
 
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
 
 
-class Evento:
+class Evento(ABC):
     """Clase base para eventos."""
 
     def __init__(self, tiempo, nombre):

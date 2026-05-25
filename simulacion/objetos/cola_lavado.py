@@ -1,3 +1,5 @@
+from simulacion.objetos.auto import Auto
+
 class ColaLavado:
     """Cola FIFO para el túnel de lavado."""
     def __init__(self):
