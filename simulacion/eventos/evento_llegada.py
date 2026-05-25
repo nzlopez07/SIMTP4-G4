@@ -28,7 +28,7 @@ class EventoLlegada(Evento):
         id = self.fila_actual.contadorAutos
         self._auto = Auto(id, self.tiempo)
 
-        if self.tiempo.time() > time(21, 0, 0):
+        if self.tiempo.time() >= time(21, 0, 0):
             self.fila_actual.accionLlegada = "Fuera de horario"
             self._termino_anticipado = True
             return
