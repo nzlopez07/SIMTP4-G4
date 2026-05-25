@@ -27,21 +27,21 @@ class EventoLlegada(Evento):
         self.fila_actual.hora_simulada = self.tiempo
         self.fila_actual.evento_simulado = self.nombre
 
-        self.fila_actual.contadorAutos = self._fila_anterior.contadorAutos + 1
-        id = self.fila_actual.contadorAutos
-        self._auto = Auto(id, self.tiempo)
-
         if self.tiempo.time() >= time(21, 0, 0):
             self.fila_actual.accionLlegada = "Fuera de horario"
             self._termino_anticipado = True
             return
+
+        self.fila_actual.contadorAutos = self._fila_anterior.contadorAutos + 1
+        id = self.fila_actual.contadorAutos
+        self._auto = Auto(id, self.tiempo)
 
         self._generador = GestorVariablesAleatorias()
         self.fila_actual.rndLlegada = motor.generarRND()
         self.fila_actual.tiempoLlegada = self.tiempo + self._generador.tiempoLlegada(self.fila_actual.rndLlegada)
         motor.calendario.agregar_evento(EventoLlegada(self.fila_actual.tiempoLlegada))
 
-        if self._fila_anterior.colaAutos >= 5:
+        if self._fila_anterior.colaLavado.esta_llena():
             self.fila_actual.accionLlegada = f"A{id} se retira"
             self.fila_actual.clientesPerdidos = self._fila_anterior.clientesPerdidos + 1
             self._termino_anticipado = True
@@ -58,9 +58,7 @@ class EventoLlegada(Evento):
             return
 
         if not self._fila_anterior.tunel.esta_libre():
-            self.fila_actual.colaAutos = self._fila_anterior.colaAutos + 1
-            self._auto.estado = "EnCola"
-            self.fila_actual.autos.append(self._auto)
+            self.fila_actual.colaLavado.encolar_auto(self._auto)
         else:
             self._auto.estado = "EnLavado"
             self._fila_anterior.tunel.ocupar(self._auto)
@@ -78,8 +76,7 @@ class EventoLlegada(Evento):
             tiempoLavado   # si ya hay un evento finLavado ya creado
             tiempoAspirado 1 y 2    # si ya hay un evento finAspirado ya creado
                 
-            colaAutos
-            autos
+            colaLavado
 
             clientesPerdidos
             tiempoHorasExtras
@@ -98,8 +95,8 @@ class EventoLlegada(Evento):
         fila.tiempoAspirado1 = fila_anterior.tiempoAspirado1
         fila.tiempoAspirado2 = fila_anterior.tiempoAspirado2
 
-        fila.colaAutos = fila_anterior.colaAutos
-        fila.autos = fila_anterior.autos
+        fila.contadorAutos = fila_anterior.contadorAutos
+        fila.colaLavado = fila_anterior.colaLavado
 
         fila.clientesPerdidos = fila_anterior.clientesPerdidos
         fila.tiempoHorasExtras = fila_anterior.tiempoHorasExtras

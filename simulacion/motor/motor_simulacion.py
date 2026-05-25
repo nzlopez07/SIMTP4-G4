@@ -75,6 +75,7 @@ class MotorSimulacion:
 
     def agregar_fila_vector(self, fila) -> None:
         """Desplaza la ventana deslizante y registra la fila en el historial."""
+        self._registro.actualizar_horas_extras(fila)
         self._fila_anterior = self._fila_actual
         self._fila_actual = fila
         self._vector_estado.agregar(fila)

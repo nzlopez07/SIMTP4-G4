@@ -10,6 +10,26 @@ class RegistroEstadisticas:
         self.tiempoTunelBloqueado = timedelta(0)
         self.tiempoFinSimulacion = None
         self.tiempoHorasExtras = timedelta(0)
+        self._fecha_inicio_overtime = None
+        self._overtime_previo = timedelta(0)
+
+    def actualizar_horas_extras(self, fila) -> None:
+        """Escribe tiempoHorasExtras en la fila si la hora simulada supera las 21:00."""
+        if not isinstance(fila.hora_simulada, datetime):
+            return
+
+        fecha = fila.hora_simulada.date()
+        cierre_hoy = datetime.combine(fecha, time(21, 0, 0))
+
+        if fila.hora_simulada <= cierre_hoy:
+            return
+
+        if self._fecha_inicio_overtime != fecha:
+            # Primera vez que se cruza las 21:00 en este día: guardar el acumulado previo
+            self._fecha_inicio_overtime = fecha
+            self._overtime_previo = fila.tiempoHorasExtras
+
+        fila.tiempoHorasExtras = self._overtime_previo + (fila.hora_simulada - cierre_hoy)
 
     def registrar_cliente_perdido(self, fila=None):
         self.clientesPerdidos += 1
