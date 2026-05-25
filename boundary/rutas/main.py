@@ -1,10 +1,7 @@
-from flask import Blueprint, jsonify, render_template, request, redirect, url_for
-
+from flask import Blueprint, render_template, request
 from simulacion.motor import MotorSimulacion
-from simulacion.estadisticas import FilaVectorEstado, RegistroEstadisticas
 
 bp = Blueprint("main", __name__)
-
 
 @bp.route("/")
 def index():
@@ -21,44 +18,40 @@ def simulacion_ejecutar():
     cant_sim    = request.form.get("cant_sim",    "").strip()
     seed        = request.form.get("seed",        "").strip()
 
-    # Al menos uno de los dos grupos debe estar completo
-    if not hora_fin and not cant_sim:
+    # Solo uno de los dos puede estar completo
+    if (hora_fin and cant_sim):
         return render_template(
             "formulario-simulacion.html",
-            error="Debés completar al menos uno de los campos: «Horario hasta» o «Cantidad de simulaciones».",
-            hora_fin=hora_fin, ##String
+            error_title="Parámetros en conflicto",
+            error="Solo podés completar uno de los campos: «Horario hasta» o «Cantidad de simulaciones», no ambos a la vez.",
+            hora_fin=hora_fin,
             cant_sim=cant_sim,
             seed=seed,
         )
 
-    # crear motor con vector y generador por defecto
-    ## A lo sumo guardar la seed y pasársela por separado al motor para que la use en su generador???
-    ## O pasarle el generador previamente creado acá??
+    # Al menos uno de los dos debe estar completo
+    if not hora_fin and not cant_sim:
+        return render_template(
+            "formulario-simulacion.html",
+            error="Debés completar al menos uno de los campos: «Horario hasta» o «Cantidad de simulaciones».",
+            hora_fin=hora_fin,
+            cant_sim=cant_sim,
+            seed=seed,
+        )
+    # Creacion del controller
     motor = MotorSimulacion(seed, hora_fin, cant_sim)
+    motor.ejecutar()
 
-    # generar una fila de ejemplo para que la vista muestre algo
-    fila = FilaVectorEstado()
-    fila.iteracion = 1
-    fila.hora_simulada = 0.0
-    motor.agregar_fila_vector(fila)
-    fila.evento_simulado = "InicioSimulacion"
+    ultima_fila = motor.vector_estado.getActual()
+    primera_fila = motor.vector_estado.filas[0]
+    metricas = motor.registro.calcular_metricas_finales(ultima_fila, tiempo_inicio=primera_fila.hora_simulada)
+    estadisticas = {
+        "total_autos": ultima_fila.contadorAutos,
+        "clientes_perdidos": metricas["clientes_perdidos_por_capacidad"],
+        "porcentaje_tunel_bloqueado": round(metricas["porcentaje_tiempo_tunel_bloqueado"], 1),
+        "horas_extras_minutos": int(metricas["tiempo_horas_extras_minutos"]),
+        "cola_maxima": max((len(f.colaLavado.autos) for f in motor.vector_estado.filas), default=0),
+    }
 
-    if hora_inicio and hora_fin:
-        fila.agregar_variable_auxiliar("hora_inicio", hora_inicio)
-        fila.agregar_variable_auxiliar("hora_fin",    hora_fin)
-    else:
-        fila.agregar_variable_auxiliar("cant_sim", cant_sim)
-
-    if seed:
-        fila.agregar_rnd("seed", seed)
-        
-    # renderizar resultados inmediatamente
     filas_serializables = [f.como_dict() for f in motor.vector_estado.filas]
-    return render_template("resultados.html", filas=filas_serializables)
-
-
-@bp.route("/simulacion/resultados")
-def simulacion_resultados():
-    # ruta placeholder: sin almacenamiento persistente no hay resultados previos
-    return render_template("resultados.html", filas=[])
-    # El resultado no debera encontrarse aparte de las estadisticas. Las estadisticas se mostraran encima de la tabla. A su vez habra un boton para copiar todos los datos de las variables automaticamente.
+    return render_template("resultados.html", filas=filas_serializables, estadisticas=estadisticas)

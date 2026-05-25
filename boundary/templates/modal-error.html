@@ -1,12 +1,11 @@
 {% if error %}
 <div class="modal-overlay" id="error-modal" onclick="if(event.target===this)_cerrarModal()">
   <div class="modal-card">
-    <h2 class="modal-title">Parámetros incompletos</h2>
+    <h2 class="modal-title">{{ error_title or "Parámetros incompletos" }}</h2>
     <p class="modal-message">{{ error }}</p>
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="_cerrarModal()">Entendido</button>
     </div>
   </div>
 </div>
-<script src="{{ url_for('static', filename='modal-error.js') }}"></script>
 {% endif %}

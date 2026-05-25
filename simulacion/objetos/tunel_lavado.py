@@ -1,9 +1,12 @@
+from simulacion.objetos.auto import Auto
+
+
 class TunelLavado:
     """Recurso que representa el tunel de lavado."""
 
     def __init__(self):
-        self.estado = "Libre"
-        self.auto_actual = None
+        self.estado = "Libre"  # Libre | Ocupado | Bloqueado (se puede hacer un patron de estado para si esta libre ocupado o bloqueado y generar las funciones esLibre esOcupado etc)
+        self.auto_actual: Auto = None  # id del auto
         self.horaInicioBloqueado = None
 
     def esta_libre(self):
@@ -30,3 +33,11 @@ class TunelLavado:
     def bloquear(self, tiempo_inicio):
         self.estado = "Bloqueado"
         self.horaInicioBloqueado = tiempo_inicio
+
+    def como_dict(self):
+        return {
+            "estado": self.estado,
+            "auto_actual": self.auto_actual,
+            "horaInicioBloqueado": self.horaInicioBloqueado,
+        }
+
