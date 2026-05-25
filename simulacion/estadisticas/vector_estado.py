@@ -1,5 +1,21 @@
 """Estructuras para el vector de estado de la simulacion."""
 
+from datetime import datetime, timedelta
+
+from simulacion.objetos import ColaLavado, PuestoAspirado, TunelLavado
+
+
+def _serializar(valor):
+    """Convierte datetime y timedelta a str para JSON."""
+    if isinstance(valor, datetime):
+        return valor.strftime("%H:%M:%S")
+    if isinstance(valor, timedelta):
+        total = int(valor.total_seconds())
+        h, rem = divmod(total, 3600)
+        m, s = divmod(rem, 60)
+        return f"{h:02d}:{m:02d}:{s:02d}"
+    return valor
+
 
 class FilaVectorEstado:
     """Representa una fila del vector de estado de la simulacion."""
@@ -8,43 +24,57 @@ class FilaVectorEstado:
         self.iteracion = 0
         self.hora_simulada = 0.0
         self.evento_simulado = ""
-        self.proximos_eventos = []
-        self.objetos = {}
-        self.variables_auxiliares = {}
-        self.rnd_usados = {}
 
-    def agregar_proximo_evento(self, evento):
-        self.proximos_eventos.append(evento)
+        self.rndLlegada = None
+        self.tiempoLlegada = None
+        self.accionLlegada = ""
+        self.rndLavado = None
+        self.tiempoLavado = None
+        self.rndFlagAspirado = None
+        self.flagAspirado = None
+        self.rndAspirado1 = None
+        self.tiempoAspirado1 = None
+        self.rndAspirado2 = None
+        self.tiempoAspirado2 = None
 
-    def agregar_objeto(self, nombre, estado=None, atributos=None):
-        if atributos is None:
-            atributos = {}
+        self.contadorAutos = 0
+        self.colaLavado = ColaLavado()
 
-        self.objetos[nombre] = {
-            "estado": estado,
-            "atributos": atributos,
-        }
+        self.clientesPerdidos = 0
+        self.tiempoInicioBloqueoTunel = None
+        self.tiempoFinSimulacion = None
+        self.tiempoHorasExtras = timedelta(0)
+        self.tiempoTunelBloqueado = timedelta(0)
 
-    def agregar_variable_auxiliar(self, nombre, valor):
-        self.variables_auxiliares[nombre] = valor
-
-    def agregar_rnd(self, nombre, valor):
-        self.rnd_usados[nombre] = valor
+        self.tunel: TunelLavado = None
+        self.puestoAspirado1: PuestoAspirado = None
+        self.puestoAspirado2: PuestoAspirado = None
 
     def como_dict(self):
         return {
             "iteracion": self.iteracion,
-            "hora_simulada": self.hora_simulada,
+            "hora_simulada": _serializar(self.hora_simulada),
             "evento_simulado": self.evento_simulado,
-            "proximos_eventos": list(self.proximos_eventos),
-            "objetos": self.objetos,
-            "variables_auxiliares": self.variables_auxiliares,
-            "rnd_usados": self.rnd_usados,
+            "rnd_llegada": self.rndLlegada,
+            "tiempo_llegada": _serializar(self.tiempoLlegada),
+            "accion_llegada": self.accionLlegada,
+            "rnd_lavado": self.rndLavado,
+            "tiempo_lavado": _serializar(self.tiempoLavado),
+            "rnd_flag_aspirado": self.rndFlagAspirado,
+            "flag_aspirado": self.flagAspirado,
+            "rnd_aspirado_1": self.rndAspirado1,
+            "tiempo_aspirado_1": _serializar(self.tiempoAspirado1),
+            "rnd_aspirado_2": self.rndAspirado2,
+            "tiempo_aspirado_2": _serializar(self.tiempoAspirado2),
+            "contador_autos": self.contadorAutos,
+            "cola_autos": len(self.colaLavado.autos),
+            "clientes_perdidos": self.clientesPerdidos,
+            "tiempo_horas_extras": _serializar(self.tiempoHorasExtras),
+            "tiempo_tunel_bloqueado": _serializar(self.tiempoTunelBloqueado),
         }
 
-
 class VectorEstado:
-    """Contenedor del historial de filas del vector de estado."""
+    """Historial completo de filas generadas por la simulacion."""
 
     def __init__(self):
         self.filas = []
@@ -52,23 +82,10 @@ class VectorEstado:
     def agregar(self, fila):
         self.filas.append(fila)
 
-    def obtener(self, indice):
-        return self.filas[indice]
-
-    def quitar(self, indice):
-        return self.filas.pop(indice)
-
-    def buscar(self, criterio): ##Acá criterio sería una lambda function que recibe una fila y devuelve True si cumple la condición de búsqueda
-        return [fila for fila in self.filas if criterio(fila)]
-
-    def buscar_por_iteracion(self, iteracion):
-        for fila in self.filas:
-            if fila.iteracion == iteracion:
-                return fila
-        return None
-
-    def limpiar(self):
-        self.filas.clear()
+    def getActual(self):
+        if len(self.filas) == 0:
+            raise Exception("No hay ningun vector estado")
+        return self.filas[-1]
 
     def __len__(self):
         return len(self.filas)

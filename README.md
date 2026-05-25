@@ -17,7 +17,7 @@ Se proveen scripts para ejecutar la aplicación con una sola instrucción:
 ./run.sh
 ```
 
-Ambos scripts crean un entorno virtual en `.venv` (si no existe), instalan las dependencias desde `Docs/requirements.txt`, y arrancan la aplicación Flask.
+Ambos scripts crean un entorno virtual en `.venv` (si no existe), instalan las dependencias desde `documentacion/requirements.txt`, y arrancan la aplicación Flask.
 
 Alternativamente, si ya configuraste el entorno, podés usar directamente:
 

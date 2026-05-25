@@ -1,26 +1,7 @@
 """Eventos de la simulación: clases base y específicas (esqueleto)."""
-
-
-class Evento:
-    """Clase base para eventos."""
-
-    def __init__(self, tiempo=0):
-        self.tiempo = tiempo
-        self.RNDusado = None  # RND utilizado para generar el evento (si corresponde)
-        self.resultadoDecision = None  # Resultado de la decisión tomada (si corresponde)
-
-    def procesar(self, motor):
-        """Procesa el evento sobre el `motor` (implementación en el futuro)."""
-        raise NotImplementedError
-
-
-class EventoLlegada(Evento):
-    pass
-
-
-class EventoFinLavado(Evento):
-    pass
-
-
-class EventoFinAspirado(Evento):
-    pass
+from simulacion.eventos.evento import Evento
+from simulacion.eventos.evento_inicializacion import EventoInicializacion
+from simulacion.eventos.evento_llegada import EventoLlegada
+from simulacion.eventos.evento_fin_lavado import EventoFinLavado
+from simulacion.eventos.evento_fin_aspirado import EventoFinAspirado
+from simulacion.eventos.evento_nuevo_dia import EventoNuevoDia
