@@ -49,10 +49,12 @@
         <tr>
           <th colspan="3" class="col-group">Evento</th>
           <th colspan="3" class="col-group">Llegada</th>
-          <th colspan="4" class="col-group">Lavado</th>
-          <th colspan="2" class="col-group">Aspirado 1</th>
-          <th colspan="2" class="col-group">Aspirado 2</th>
-          <th colspan="5" class="col-group">Estado del sistema</th>
+          <th colspan="5" class="col-group">Lavado</th>
+          <th colspan="4" class="col-group">Tunel</th>
+          <th colspan="3" class="col-group">Aspirado 1</th>
+          <th colspan="3" class="col-group">Aspirado 2</th>
+          <th colspan="2" class="col-group">Cola</th>
+          <th colspan="4" class="col-group">Estado del sistema</th>
         </tr>
         {# Fila 2: nombre de cada columna #}
         <tr>
@@ -64,14 +66,22 @@
           <th>Acción llegada</th>
           <th>RND lavado</th>
           <th>Tiempo lavado</th>
+          <th>Auto en tunel</th>
           <th>RND Asp.</th>
           <th>Asp.</th>
+          <th>Estado</th>
+          <th>Bloq.</th>
+          <th>Inicio bloq.</th>
+          <th>Fin bloq.</th>
           <th>RND Asp. 1</th>
           <th>Tiempo Asp. 1</th>
+          <th>Auto P1</th>
           <th>RND Asp. 2</th>
           <th>Tiempo Asp. 2</th>
+          <th>Auto P2</th>
+          <th>Cantidad</th>
+          <th>Autos en cola</th>
           <th>Autos Total</th>
-          <th>Cola</th>
           <th>Perdidos</th>
           <th>Hs. Extras</th>
           <th>Túnel Bloq.</th>
@@ -79,7 +89,7 @@
       </thead>
       <tbody>
         {% for fila in filas %}
-        <tr>
+        <tr class="{% if 'Nuevo' in fila.evento_simulado %}row-nuevo-dia{% endif %}">
           <td>{{ fila.iteracion }}</td>
           <td>{{ fila.hora_simulada }}</td>
           <td>{{ fila.evento_simulado }}</td>
@@ -90,18 +100,37 @@
 
           <td>{% if fila.rnd_lavado is not none %}{{ "%.4f"|format(fila.rnd_lavado) }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
           <td>{% if fila.tiempo_lavado is not none %}{{ fila.tiempo_lavado }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
+          <td>{{ fila.tunel_auto_actual if fila.tunel_auto_actual else '---' }}</td>
 
           <td>{% if fila.rnd_flag_aspirado is not none %}{{ "%.4f"|format(fila.rnd_flag_aspirado) }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
           <td>{% if fila.flag_aspirado is not none %}{{ "Sí" if fila.flag_aspirado else "No" }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
 
+          <td>{{ fila.tunel_estado if fila.tunel_estado else '---' }}</td>
+          <td>{{ "Si" if fila.tunel_bloqueado else "No" }}</td>
+          <td>{% if fila.tiempo_inicio_bloqueo_tunel is not none %}{{ fila.tiempo_inicio_bloqueo_tunel }}{% else %}<span class="cell-null">---</span>{% endif %}</td>
+          <td>{% if fila.tiempo_fin_bloqueo_tunel is not none %}{{ fila.tiempo_fin_bloqueo_tunel }}{% else %}<span class="cell-null">---</span>{% endif %}</td>
+
           <td>{% if fila.rnd_aspirado_1 is not none %}{{ "%.4f"|format(fila.rnd_aspirado_1) }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
           <td>{% if fila.tiempo_aspirado_1 is not none %}{{ fila.tiempo_aspirado_1 }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
+          <td>{{ fila.puesto_aspirado_1_auto_actual if fila.puesto_aspirado_1_auto_actual else '---' }}</td>
 
           <td>{% if fila.rnd_aspirado_2 is not none %}{{ "%.4f"|format(fila.rnd_aspirado_2) }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
           <td>{% if fila.tiempo_aspirado_2 is not none %}{{ fila.tiempo_aspirado_2 }}{% else %}<span class="cell-null">—</span>{% endif %}</td>
+          <td>{{ fila.puesto_aspirado_2_auto_actual if fila.puesto_aspirado_2_auto_actual else '---' }}</td>
 
-          <td>{{ fila.contador_autos }}</td>
           <td>{{ fila.cola_autos }}</td>
+          <td class="queue-cell">
+            {% if fila.cola_autos_detalle %}
+              <div class="queue-list">
+                {% for auto in fila.cola_autos_detalle.split(', ') %}
+                  <span class="queue-chip">{{ auto }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <span class="cell-null">---</span>
+            {% endif %}
+          </td>
+          <td>{{ fila.contador_autos }}</td>
           <td>{{ fila.clientes_perdidos }}</td>
           <td>{{ fila.tiempo_horas_extras }}</td>
           <td>{{ fila.tiempo_tunel_bloqueado }}</td>
