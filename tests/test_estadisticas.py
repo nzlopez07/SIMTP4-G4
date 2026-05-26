@@ -42,3 +42,18 @@ def test_registro_estadisticas_calcula_metricas_finales_del_enunciado():
     assert metricas["porcentaje_tiempo_tunel_bloqueado"] == 6
     assert metricas["tiempo_horas_extras"] == timedelta(minutes=30)
     assert metricas["tiempo_horas_extras_minutos"] == 30
+    assert metricas["tiempo_promedio_horas_extras"] == timedelta(minutes=30)
+    assert metricas["tiempo_promedio_horas_extras_minutos"] == 30
+
+
+def test_registro_estadisticas_promedia_horas_extras_por_jornada():
+    fila = FilaVectorEstado()
+    fila.tiempoHorasExtras = timedelta(minutes=90)
+    fila.tiempoFinSimulacion = datetime(2026, 5, 26, 21, 30)
+
+    registro = RegistroEstadisticas()
+    metricas = registro.calcular_metricas_finales(fila, cantidad_jornadas=3)
+
+    assert metricas["tiempo_horas_extras_minutos"] == 90
+    assert metricas["tiempo_promedio_horas_extras_minutos"] == 30
+    assert metricas["cantidad_jornadas"] == 3

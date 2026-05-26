@@ -49,7 +49,7 @@ def simulacion_ejecutar():
         "total_autos": ultima_fila.contadorAutos,
         "clientes_perdidos": metricas["clientes_perdidos_por_capacidad"],
         "porcentaje_tunel_bloqueado": round(metricas["porcentaje_tiempo_tunel_bloqueado"], 1),
-        "horas_extras_minutos": int(metricas["tiempo_horas_extras_minutos"]),
+        "horas_extras_minutos": round(metricas["tiempo_promedio_horas_extras_minutos"], 1),
         "cola_maxima": max((len(f.colaLavado.autos) for f in motor.vector_estado.filas), default=0),
     }
 

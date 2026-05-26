@@ -6,15 +6,49 @@ from simulacion.objetos import ColaLavado, PuestoAspirado, TunelLavado
 
 
 def _serializar(valor):
-    """Convierte datetime y timedelta a str para JSON."""
+    """Convierte valores del vector a tipos simples para JSON."""
     if isinstance(valor, datetime):
         return valor.strftime("%H:%M:%S")
     if isinstance(valor, timedelta):
-        total = int(valor.total_seconds())
-        h, rem = divmod(total, 3600)
-        m, s = divmod(rem, 60)
-        return f"{h:02d}:{m:02d}:{s:02d}"
+        minutos = valor.total_seconds() / 60
+        if minutos.is_integer():
+            return int(minutos)
+        return round(minutos, 2)
     return valor
+
+
+def _serializar_auto(auto):
+    if auto is None:
+        return None
+
+    return {
+        "id": auto.id,
+        "estado": auto.estado,
+        "requiere_aspirado": auto.requiereAspirado,
+        "hora_llegada": _serializar(auto.horaLlegada),
+    }
+
+
+def _serializar_tunel(tunel):
+    if tunel is None:
+        return None
+
+    return {
+        "estado": tunel.estado,
+        "auto_actual": _serializar_auto(tunel.auto_actual),
+        "hora_inicio_bloqueado": _serializar(tunel.horaInicioBloqueado),
+    }
+
+
+def _serializar_puesto(puesto):
+    if puesto is None:
+        return None
+
+    return {
+        "id": puesto.id,
+        "estado": puesto.estado,
+        "auto_actual": _serializar_auto(puesto.auto_actual),
+    }
 
 
 class FilaVectorEstado:
@@ -71,6 +105,9 @@ class FilaVectorEstado:
             "clientes_perdidos": self.clientesPerdidos,
             "tiempo_horas_extras": _serializar(self.tiempoHorasExtras),
             "tiempo_tunel_bloqueado": _serializar(self.tiempoTunelBloqueado),
+            "tunel": _serializar_tunel(self.tunel),
+            "puesto_aspirado_1": _serializar_puesto(self.puestoAspirado1),
+            "puesto_aspirado_2": _serializar_puesto(self.puestoAspirado2),
         }
 
 class VectorEstado:

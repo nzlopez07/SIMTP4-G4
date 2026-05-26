@@ -46,4 +46,5 @@ class EventoNuevoDia(Evento):
         motor.calendario.agregar_evento(EventoLlegada(self._nueva_fila.tiempoLlegada))
 
     def _actualizar_estadisticas(self, motor):
+        motor.registro.registrar_jornada(self.tiempo)
         motor.agregar_fila_vector(self._nueva_fila)
