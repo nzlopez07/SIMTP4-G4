@@ -40,8 +40,11 @@ def test_fila_vector_estado_serializa_estado_de_objetos():
 
     assert serializada["tunel_estado"] == "Ocupado"
     assert serializada["tunel_auto_actual"] == "A1 (EnLavado)"
+    assert serializada["tunel"]["estado"] == "Ocupado"
+    assert serializada["tunel"]["auto_actual"]["id"] == 1
     assert serializada["puesto_aspirado_1_estado"] == "Ocupado"
     assert serializada["puesto_aspirado_1_auto_actual"] == "A2 (EnAspirado)"
+    assert serializada["puesto_aspirado_1"]["auto_actual"]["horaLlegada"] == "09:05:00"
     assert serializada["puesto_aspirado_2_estado"] == "Libre"
 
 

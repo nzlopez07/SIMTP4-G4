@@ -44,7 +44,7 @@ def simulacion_ejecutar():
 
     ultima_fila = motor.vector_estado.getActual()
     primera_fila = motor.vector_estado.filas[0]
-    dias_simulados = len({
+    jornadas_simuladas = len({
         fila.hora_simulada.date()
         for fila in motor.vector_estado.filas
         if hasattr(fila.hora_simulada, "date")
@@ -55,7 +55,7 @@ def simulacion_ejecutar():
         "clientes_perdidos": metricas["clientes_perdidos_por_capacidad"],
         "porcentaje_tunel_bloqueado": round(metricas["porcentaje_tiempo_tunel_bloqueado"], 1),
         "horas_extras_minutos": int(metricas["tiempo_horas_extras_minutos"]),
-        "dias_simulados": dias_simulados,
+        "jornadas_simuladas": jornadas_simuladas,
     }
 
     filas_serializables = [f.como_dict() for f in motor.vector_estado.filas]
