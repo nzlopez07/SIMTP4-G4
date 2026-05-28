@@ -98,5 +98,6 @@ class Evento(ABC):
         fila_actual.rndLlegada = None
         fila_actual.rndLavado = None
         fila_actual.rndFlagAspirado = None
+        fila_actual.flagAspirado = None
         fila_actual.rndAspirado1 = None
         fila_actual.rndAspirado2 = None
