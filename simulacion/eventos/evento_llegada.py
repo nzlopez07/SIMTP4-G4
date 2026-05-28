@@ -27,6 +27,7 @@ class EventoLlegada(Evento):
 
         if self.tiempo.time() >= time(21, 0, 0):
             self.fila_actual.accionLlegada = "Fuera de horario"
+            self.fila_actual.tiempoLlegada = None
             self._termino_anticipado = True
             return
 

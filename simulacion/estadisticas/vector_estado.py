@@ -20,34 +20,41 @@ def _serializar(valor):
 def _serializar_auto(auto):
     if auto is None:
         return None
+    return f"A{auto.id} ({auto.estado})"
 
+
+def _serializar_autos(autos):
+    return ", ".join(_serializar_auto(auto) for auto in autos)
+
+
+def _serializar_auto_legacy(auto):
+    if auto is None:
+        return None
     return {
         "id": auto.id,
         "estado": auto.estado,
-        "requiere_aspirado": auto.requiereAspirado,
-        "hora_llegada": _serializar(auto.horaLlegada),
+        "requiereAspirado": auto.requiereAspirado,
+        "horaLlegada": _serializar(auto.horaLlegada),
     }
 
 
-def _serializar_tunel(tunel):
+def _serializar_tunel_legacy(tunel):
     if tunel is None:
         return None
-
     return {
         "estado": tunel.estado,
-        "auto_actual": _serializar_auto(tunel.auto_actual),
-        "hora_inicio_bloqueado": _serializar(tunel.horaInicioBloqueado),
+        "auto_actual": _serializar_auto_legacy(tunel.auto_actual),
+        "horaInicioBloqueado": _serializar(tunel.horaInicioBloqueado),
     }
 
 
-def _serializar_puesto(puesto):
+def _serializar_puesto_legacy(puesto):
     if puesto is None:
         return None
-
     return {
         "id": puesto.id,
         "estado": puesto.estado,
-        "auto_actual": _serializar_auto(puesto.auto_actual),
+        "auto_actual": _serializar_auto_legacy(puesto.auto_actual),
     }
 
 
@@ -76,6 +83,7 @@ class FilaVectorEstado:
 
         self.clientesPerdidos = 0
         self.tiempoInicioBloqueoTunel = None
+        self.tiempoFinBloqueoTunel = None
         self.tiempoFinSimulacion = None
         self.tiempoHorasExtras = timedelta(0)
         self.tiempoTunelBloqueado = timedelta(0)
@@ -102,12 +110,23 @@ class FilaVectorEstado:
             "tiempo_aspirado_2": _serializar(self.tiempoAspirado2),
             "contador_autos": self.contadorAutos,
             "cola_autos": len(self.colaLavado.autos),
+            "cola_autos_detalle": _serializar_autos(self.colaLavado.autos),
+            "tunel_estado": self.tunel.estado if self.tunel is not None else None,
+            "tunel_auto_actual": _serializar_auto(self.tunel.auto_actual) if self.tunel is not None else None,
+            "tunel_hora_inicio_bloqueo": _serializar(self.tunel.horaInicioBloqueado) if self.tunel is not None else None,
+            "tunel": _serializar_tunel_legacy(self.tunel),
+            "puesto_aspirado_1_estado": self.puestoAspirado1.estado if self.puestoAspirado1 is not None else None,
+            "puesto_aspirado_1_auto_actual": _serializar_auto(self.puestoAspirado1.auto_actual) if self.puestoAspirado1 is not None else None,
+            "puesto_aspirado_1": _serializar_puesto_legacy(self.puestoAspirado1),
+            "puesto_aspirado_2_estado": self.puestoAspirado2.estado if self.puestoAspirado2 is not None else None,
+            "puesto_aspirado_2_auto_actual": _serializar_auto(self.puestoAspirado2.auto_actual) if self.puestoAspirado2 is not None else None,
+            "puesto_aspirado_2": _serializar_puesto_legacy(self.puestoAspirado2),
+            "tunel_bloqueado": self.tunel.esta_bloqueado() if self.tunel is not None else False,
+            "tiempo_inicio_bloqueo_tunel": _serializar(self.tiempoInicioBloqueoTunel),
+            "tiempo_fin_bloqueo_tunel": _serializar(self.tiempoFinBloqueoTunel),
             "clientes_perdidos": self.clientesPerdidos,
             "tiempo_horas_extras": _serializar(self.tiempoHorasExtras),
             "tiempo_tunel_bloqueado": _serializar(self.tiempoTunelBloqueado),
-            "tunel": _serializar_tunel(self.tunel),
-            "puesto_aspirado_1": _serializar_puesto(self.puestoAspirado1),
-            "puesto_aspirado_2": _serializar_puesto(self.puestoAspirado2),
         }
 
 class VectorEstado:

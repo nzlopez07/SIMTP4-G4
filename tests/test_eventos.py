@@ -8,7 +8,7 @@ def test_inicializacion_crea_primera_fila_y_agenda_llegada():
     EventoInicializacion().procesar(motor)
 
     assert len(motor.vector_estado.filas) == 1
-    assert motor.fila_actual.evento_simulado == "Inicialización"
+    assert motor.fila_actual.evento_simulado == "Inicializacion"
     assert motor.fila_actual.tunel.esta_libre()
     assert len(motor.calendario._eventos) == 1
 
@@ -21,7 +21,7 @@ def test_llegada_modifica_fila_actual_sin_mutar_fila_anterior():
     llegada.procesar(motor)
 
     assert len(motor.vector_estado.filas) == 2
-    assert motor.fila_anterior.evento_simulado == "Inicialización"
+    assert motor.fila_anterior.evento_simulado == "Inicializacion"
     assert motor.fila_anterior.tunel.esta_libre()
     assert motor.fila_anterior.colaLavado is not motor.fila_actual.colaLavado
     assert motor.fila_actual.evento_simulado == "Llegada"
