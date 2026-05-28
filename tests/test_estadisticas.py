@@ -13,15 +13,15 @@ def test_fila_vector_estado_inicializa_acumuladores_estadisticos():
     assert fila.tiempoHorasExtras == timedelta(0)
 
 
-def test_fila_vector_estado_serializa_tiempos_en_minutos():
+def test_fila_vector_estado_serializa_tiempos_en_hh_mm_ss():
     fila = FilaVectorEstado()
     fila.tiempoTunelBloqueado = timedelta(minutes=15)
     fila.tiempoHorasExtras = timedelta(minutes=30)
 
     serializada = fila.como_dict()
 
-    assert serializada["tiempo_tunel_bloqueado"] == 15
-    assert serializada["tiempo_horas_extras"] == 30
+    assert serializada["tiempo_tunel_bloqueado"] == "00:15:00"
+    assert serializada["tiempo_horas_extras"] == "00:30:00"
 
 
 def test_registro_estadisticas_calcula_metricas_finales_del_enunciado():

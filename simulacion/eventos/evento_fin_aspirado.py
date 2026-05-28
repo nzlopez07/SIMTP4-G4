@@ -61,6 +61,15 @@ class EventoFinAspirado(Evento):
         self._ocupar_puesto_aspirado(motor, self.puesto, auto_bloqueado, generador)
         self.bloqueo_finalizado = True
 
+    def _registrar_tiempo_bloqueado(self):
+        inicio = getattr(self.fila_actual.tunel, "horaInicioBloqueado", None)
+
+        if inicio is None:
+            return
+
+        self.fila_actual.tiempoTunelBloqueado += self.tiempo - inicio
+        self.fila_actual.tiempoInicioBloqueoTunel = None
+
     def _obtener_puesto(self, fila):
         if self.puesto_id == 1:
             return fila.puestoAspirado1

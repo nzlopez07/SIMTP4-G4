@@ -10,19 +10,24 @@ class Auto:
         match estado:
             case 1:
                 self.estado = "EnCola"
+
             case 2:
                 self.estado = "EnLavado"
+
             case 3:
                 self.estado = "EsperandoAspirado"
+
             case 4:
                 self.estado = "EnAspirado"
+
             case 5:
                 self.estado = "Finalizado"
+
             case _:
                 self.estado = "Retirado"
 
-    def necesitaAspirado(self, boolean):
-        if boolean == 1:
+    def necesitaAspirado (self, boolean): # Si en evento fin de lavado se determina que requiere aspirado
+        if (boolean == 1) :
             self.requiereAspirado = True
         else:
             self.requiereAspirado = False

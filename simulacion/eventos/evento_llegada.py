@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import time, timedelta
 
 from simulacion.eventos.evento import Evento
 from simulacion.eventos.evento_fin_lavado import EventoFinLavado
@@ -23,9 +23,7 @@ class EventoLlegada(Evento):
     def _ejecutar(self, motor):
         self._fila_anterior = motor.fila_actual
         self.fila_actual = self._copiar_fila(self._fila_anterior)
-        self.fila_actual.iteracion = self._fila_anterior.iteracion + 1
-        self.fila_actual.hora_simulada = self.tiempo
-        self.fila_actual.evento_simulado = self.nombre
+        self._preparar_fila(self.fila_actual, self._fila_anterior)
 
         if self.tiempo.time() >= time(21, 0, 0):
             self.fila_actual.accionLlegada = "Fuera de horario"
