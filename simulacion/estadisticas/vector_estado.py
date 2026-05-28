@@ -10,10 +10,10 @@ def _serializar(valor):
     if isinstance(valor, datetime):
         return valor.strftime("%H:%M:%S")
     if isinstance(valor, timedelta):
-        minutos = valor.total_seconds() / 60
-        if minutos.is_integer():
-            return int(minutos)
-        return round(minutos, 2)
+        total = int(valor.total_seconds())
+        h, rem = divmod(total, 3600)
+        m, s = divmod(rem, 60)
+        return f"{h:02d}:{m:02d}:{s:02d}"
     return valor
 
 
