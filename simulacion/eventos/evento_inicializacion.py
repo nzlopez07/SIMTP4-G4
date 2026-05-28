@@ -12,7 +12,7 @@ class EventoInicializacion(Evento):
 
     def __init__(self):
         t = datetime.combine(datetime.now(), time(9, 0, 0))
-        super().__init__(t, "Inicialización")
+        super().__init__(t, "Inicializacion")
         self._primera_fila = None
 
     def _ejecutar(self, motor):
@@ -36,4 +36,5 @@ class EventoInicializacion(Evento):
         motor.calendario.agregar_evento(EventoLlegada(self._primera_fila.tiempoLlegada))
 
     def _actualizar_estadisticas(self, motor):
+        motor.registro.registrar_jornada(self.tiempo)
         motor.agregar_fila_vector(self._primera_fila)

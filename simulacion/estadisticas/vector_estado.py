@@ -6,7 +6,7 @@ from simulacion.objetos import ColaLavado, PuestoAspirado, TunelLavado
 
 
 def _serializar(valor):
-    """Convierte datetime y timedelta a str para JSON."""
+    """Convierte valores del vector a tipos simples para JSON."""
     if isinstance(valor, datetime):
         return valor.strftime("%H:%M:%S")
     if isinstance(valor, timedelta):

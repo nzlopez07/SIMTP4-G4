@@ -18,6 +18,7 @@ class EventoLlegada(Evento):
         self._auto = None
         self._generador = None
         self._termino_anticipado = False
+        self._cliente_perdido = False
 
     def _ejecutar(self, motor):
         self._fila_anterior = motor.fila_actual
@@ -41,7 +42,7 @@ class EventoLlegada(Evento):
 
         if self._fila_anterior.colaLavado.esta_llena():
             self.fila_actual.accionLlegada = f"A{id} se retira"
-            self.fila_actual.clientesPerdidos = self._fila_anterior.clientesPerdidos + 1
+            self._cliente_perdido = True
             self._termino_anticipado = True
             return
 
@@ -65,4 +66,28 @@ class EventoLlegada(Evento):
             motor.calendario.agregar_evento(EventoFinLavado(self.fila_actual.tiempoLavado))
 
     def _actualizar_estadisticas(self, motor):
+        if self._cliente_perdido:
+            motor.registro.registrar_cliente_perdido(self.fila_actual)
         motor.agregar_fila_vector(self.fila_actual)
+
+    def _copiar_fila(self, fila_anterior):
+        """" 
+        Copiar los valores necesarios de la fila anterior a la actual 
+        Datos que se tienen que copiar:
+            tiempoLavado   # si ya hay un evento finLavado ya creado
+            tiempoAspirado 1 y 2    # si ya hay un evento finAspirado ya creado
+                
+            colaLavado
+
+            clientesPerdidos
+            tiempoHorasExtras
+            tiempoTunelBloqueado
+
+            tunel
+            puestoAspirado 1 y 2
+
+        Con esto se operará sobre la fila actual directamente, para de esa forma en caso de no requerir modificación
+        se mantendrán los mismos valores. Esto ahorrará if else y hará el código más limpio.
+        """
+
+        return super()._copiar_fila(fila_anterior)
