@@ -6,9 +6,8 @@ class Auto:
         self.requiereAspirado = requiereAspirado  # Indica si el auto requiere aspirado (True/False)
         self.horaLlegada = horaLlegada  # Hora de llegada del auto al lavadero
 
-    def cambiarEstado (self, estado): # Siendo estado un número entero que representa el estado que vamos a setear
-        match (estado):
-            
+    def cambiarEstado(self, estado):
+        match estado:
             case 1:
                 self.estado = "EnCola"
 
@@ -33,10 +32,10 @@ class Auto:
         else:
             self.requiereAspirado = False
 
-    def como_dict (self): # Devuelve los atributos de la clase Auto en pares variable - valor
+    def como_dict(self):
         return {
             "id": self.id,
             "estado": self.estado,
             "requiereAspirado": self.requiereAspirado,
             "horaLlegada": self.horaLlegada,
-    }
+        }

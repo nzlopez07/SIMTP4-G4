@@ -46,7 +46,7 @@ class EventoFinAspirado(Evento):
 
     def _actualizar_estadisticas(self, motor):
         if self.bloqueo_finalizado:
-            motor.registro.finalizar_bloqueo_tunel(self.tiempo)
+            motor.registro.finalizar_bloqueo_tunel(self.tiempo, self.fila_actual)
 
         motor.agregar_fila_vector(self.fila_actual)
 
@@ -57,7 +57,6 @@ class EventoFinAspirado(Evento):
             raise Exception("El tunel esta bloqueado, pero no conserva el auto bloqueado.")
 
         generador = GestorVariablesAleatorias()
-        self._registrar_tiempo_bloqueado()
         self.fila_actual.tunel.liberar()
         self._ocupar_puesto_aspirado(motor, self.puesto, auto_bloqueado, generador)
         self.bloqueo_finalizado = True

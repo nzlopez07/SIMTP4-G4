@@ -10,13 +10,30 @@ class RegistroEstadisticas:
         self.tiempoTunelBloqueado = timedelta(0)
         self.tiempoFinSimulacion = None
         self.tiempoHorasExtras = timedelta(0)
+        self.cantidadJornadas = 0
+        self._fechas_jornadas = set()
         self._fecha_inicio_overtime = None
         self._overtime_previo = timedelta(0)
+
+    def registrar_jornada(self, tiempo_inicio=None) -> None:
+        if isinstance(tiempo_inicio, datetime):
+            fecha = tiempo_inicio.date()
+            if fecha in self._fechas_jornadas:
+                return
+
+            self._fechas_jornadas.add(fecha)
+            self.cantidadJornadas = len(self._fechas_jornadas)
+            return
+
+        if self.cantidadJornadas == 0:
+            self.cantidadJornadas = 1
 
     def actualizar_horas_extras(self, fila) -> None:
         """Escribe tiempoHorasExtras en la fila si la hora simulada supera las 21:00."""
         if not isinstance(fila.hora_simulada, datetime):
             return
+
+        self.registrar_jornada(fila.hora_simulada)
 
         fecha = fila.hora_simulada.date()
         cierre_hoy = datetime.combine(fecha, time(21, 0, 0))
@@ -35,7 +52,7 @@ class RegistroEstadisticas:
         self.clientesPerdidos += 1
 
         if fila is not None:
-            fila.clientesPerdidos += 1
+            fila.clientesPerdidos = self.clientesPerdidos
 
     def iniciar_bloqueo_tunel(self, tiempo_inicio, fila=None):
         self.tiempoInicioBloqueoTunel = tiempo_inicio
@@ -44,15 +61,23 @@ class RegistroEstadisticas:
             fila.tiempoInicioBloqueoTunel = tiempo_inicio
 
     def finalizar_bloqueo_tunel(self, tiempo_fin, fila=None):
-        if self.tiempoInicioBloqueoTunel is None:
+        tiempo_inicio = self.tiempoInicioBloqueoTunel
+
+        if tiempo_inicio is None and fila is not None:
+            tiempo_inicio = fila.tiempoInicioBloqueoTunel
+
+        if tiempo_inicio is None and fila is not None and fila.tunel is not None:
+            tiempo_inicio = fila.tunel.horaInicioBloqueado
+
+        if tiempo_inicio is None:
             return
 
-        duracion = tiempo_fin - self.tiempoInicioBloqueoTunel
+        duracion = tiempo_fin - tiempo_inicio
         self.tiempoTunelBloqueado += duracion
         self.tiempoInicioBloqueoTunel = None
 
         if fila is not None:
-            fila.tiempoTunelBloqueado += duracion
+            fila.tiempoTunelBloqueado = self.tiempoTunelBloqueado
             fila.tiempoInicioBloqueoTunel = None
 
     def registrar_fin_simulacion(self, tiempo_fin_simulacion, tiempo_cierre, fila=None):
@@ -60,6 +85,7 @@ class RegistroEstadisticas:
 
         if fila is not None:
             fila.tiempoFinSimulacion = tiempo_fin_simulacion
+            self.actualizar_horas_extras(fila)
             self.tiempoHorasExtras = fila.tiempoHorasExtras
         else:
             self.tiempoHorasExtras = self._calcular_horas_extras(
@@ -67,17 +93,34 @@ class RegistroEstadisticas:
                 tiempo_cierre,
             )
 
-    def calcular_metricas_finales(self, fila, tiempo_inicio=None, tiempo_cierre=None):
+    def calcular_metricas_finales(
+        self,
+        fila,
+        tiempo_inicio=None,
+        tiempo_cierre=None,
+        cantidad_jornadas=None,
+    ):
         """Devuelve las tres metricas pedidas por la consigna."""
         tiempo_total = self._calcular_tiempo_total_simulacion(fila, tiempo_inicio)
         tiempo_bloqueado = fila.tiempoTunelBloqueado
         tiempo_horas_extras = fila.tiempoHorasExtras
+        jornadas = self._resolver_cantidad_jornadas(
+            cantidad_jornadas,
+            fila,
+            tiempo_inicio,
+        )
 
-        if tiempo_cierre is not None and fila.tiempoFinSimulacion is not None:
+        if (
+            tiempo_cierre is not None
+            and fila.tiempoFinSimulacion is not None
+            and tiempo_horas_extras == timedelta(0)
+        ):
             tiempo_horas_extras = self._calcular_horas_extras(
                 fila.tiempoFinSimulacion,
                 tiempo_cierre,
             )
+
+        tiempo_promedio_horas_extras = tiempo_horas_extras / jornadas
 
         return {
             "clientes_perdidos_por_capacidad": fila.clientesPerdidos,
@@ -87,6 +130,11 @@ class RegistroEstadisticas:
             ),
             "tiempo_horas_extras": tiempo_horas_extras,
             "tiempo_horas_extras_minutos": self._a_minutos(tiempo_horas_extras),
+            "tiempo_promedio_horas_extras": tiempo_promedio_horas_extras,
+            "tiempo_promedio_horas_extras_minutos": self._a_minutos(
+                tiempo_promedio_horas_extras,
+            ),
+            "cantidad_jornadas": jornadas,
         }
 
     def _calcular_tiempo_total_simulacion(self, fila, tiempo_inicio):
@@ -120,6 +168,19 @@ class RegistroEstadisticas:
             return valor.total_seconds() / 60
 
         return valor
+
+    def _resolver_cantidad_jornadas(self, cantidad_jornadas, fila, tiempo_inicio):
+        if cantidad_jornadas is not None:
+            return max(1, int(cantidad_jornadas))
+
+        if self.cantidadJornadas > 0:
+            return self.cantidadJornadas
+
+        if isinstance(tiempo_inicio, datetime) and fila.tiempoFinSimulacion is not None:
+            dias = (fila.tiempoFinSimulacion.date() - tiempo_inicio.date()).days + 1
+            return max(1, dias)
+
+        return 1
 
     def _inicio_desde_fin(self, tiempo_fin_simulacion):
         return datetime.combine(tiempo_fin_simulacion.date(), time(9, 0, 0))
