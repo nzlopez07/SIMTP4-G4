@@ -63,3 +63,18 @@ def test_fin_aspirado_limpia_inicio_de_bloqueo_al_desbloquear_tunel():
 
     assert filas_desbloqueadas
     assert all(fila.tiempoInicioBloqueoTunel is None for fila in filas_desbloqueadas)
+
+
+def test_fin_aspirado_registra_fin_de_bloqueo_al_desbloquear_tunel():
+    motor = MotorSimulacion(seed=2, cant_sim=360)
+
+    motor.ejecutar()
+
+    filas_con_fin_bloqueo = [
+        fila
+        for fila in motor.vector_estado.filas
+        if fila.tiempoFinBloqueoTunel is not None
+    ]
+
+    assert filas_con_fin_bloqueo
+    assert all(fila.tiempoFinBloqueoTunel is not None for fila in filas_con_fin_bloqueo)
