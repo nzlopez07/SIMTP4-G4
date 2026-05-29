@@ -1,6 +1,7 @@
 from datetime import datetime, time, timedelta
 
 from simulacion.estadisticas import FilaVectorEstado, RegistroEstadisticas
+from simulacion.objetos import Auto, PuestoAspirado, TunelLavado
 
 
 def test_fila_vector_estado_inicializa_acumuladores_estadisticos():
@@ -13,15 +14,38 @@ def test_fila_vector_estado_inicializa_acumuladores_estadisticos():
     assert fila.tiempoHorasExtras == timedelta(0)
 
 
-def test_fila_vector_estado_serializa_tiempos_en_minutos():
+def test_fila_vector_estado_serializa_tiempos_en_hh_mm_ss():
     fila = FilaVectorEstado()
     fila.tiempoTunelBloqueado = timedelta(minutes=15)
     fila.tiempoHorasExtras = timedelta(minutes=30)
 
     serializada = fila.como_dict()
 
-    assert serializada["tiempo_tunel_bloqueado"] == 15
-    assert serializada["tiempo_horas_extras"] == 30
+    assert serializada["tiempo_tunel_bloqueado"] == "00:15:00"
+    assert serializada["tiempo_horas_extras"] == "00:30:00"
+
+
+def test_fila_vector_estado_serializa_estado_de_objetos():
+    fila = FilaVectorEstado()
+    auto_tunel = Auto(1, datetime(2026, 5, 25, 9, 0), estado="EnLavado")
+    auto_puesto = Auto(2, datetime(2026, 5, 25, 9, 5), estado="EnAspirado")
+
+    fila.tunel = TunelLavado()
+    fila.tunel.ocupar(auto_tunel)
+    fila.puestoAspirado1 = PuestoAspirado(1)
+    fila.puestoAspirado1.ocupar(auto_puesto)
+    fila.puestoAspirado2 = PuestoAspirado(2)
+
+    serializada = fila.como_dict()
+
+    assert serializada["tunel_estado"] == "Ocupado"
+    assert serializada["tunel_auto_actual"] == "A1 (EnLavado)"
+    assert serializada["tunel"]["estado"] == "Ocupado"
+    assert serializada["tunel"]["auto_actual"]["id"] == 1
+    assert serializada["puesto_aspirado_1_estado"] == "Ocupado"
+    assert serializada["puesto_aspirado_1_auto_actual"] == "A2 (EnAspirado)"
+    assert serializada["puesto_aspirado_1"]["auto_actual"]["horaLlegada"] == "09:05:00"
+    assert serializada["puesto_aspirado_2_estado"] == "Libre"
 
 
 def test_registro_estadisticas_calcula_metricas_finales_del_enunciado():
@@ -42,3 +66,18 @@ def test_registro_estadisticas_calcula_metricas_finales_del_enunciado():
     assert metricas["porcentaje_tiempo_tunel_bloqueado"] == 6
     assert metricas["tiempo_horas_extras"] == timedelta(minutes=30)
     assert metricas["tiempo_horas_extras_minutos"] == 30
+    assert metricas["tiempo_promedio_horas_extras"] == timedelta(minutes=30)
+    assert metricas["tiempo_promedio_horas_extras_minutos"] == 30
+
+
+def test_registro_estadisticas_promedia_horas_extras_por_jornada():
+    fila = FilaVectorEstado()
+    fila.tiempoHorasExtras = timedelta(minutes=90)
+    fila.tiempoFinSimulacion = datetime(2026, 5, 26, 21, 30)
+
+    registro = RegistroEstadisticas()
+    metricas = registro.calcular_metricas_finales(fila, cantidad_jornadas=3)
+
+    assert metricas["tiempo_horas_extras_minutos"] == 90
+    assert metricas["tiempo_promedio_horas_extras_minutos"] == 30
+    assert metricas["cantidad_jornadas"] == 3

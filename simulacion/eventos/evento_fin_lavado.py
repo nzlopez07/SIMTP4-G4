@@ -43,7 +43,7 @@ class EventoFinLavado(Evento):
 
     def _actualizar_estadisticas(self, motor):
         if self.bloqueo_iniciado:
-            motor.registro.iniciar_bloqueo_tunel(self.tiempo)
+            motor.registro.iniciar_bloqueo_tunel(self.tiempo, self.fila_actual)
 
         motor.agregar_fila_vector(self.fila_actual)
 
@@ -53,7 +53,6 @@ class EventoFinLavado(Evento):
         if puesto is None:
             self.auto.estado = "EsperandoAspirado"
             self.fila_actual.tunel.bloquear(self.tiempo)
-            self.fila_actual.tiempoInicioBloqueoTunel = self.tiempo
             self.bloqueo_iniciado = True
             return
 

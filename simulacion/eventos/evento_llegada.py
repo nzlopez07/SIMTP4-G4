@@ -1,6 +1,5 @@
-from datetime import datetime, time, timedelta
+from datetime import time, timedelta
 
-from simulacion.estadisticas import FilaVectorEstado
 from simulacion.eventos.evento import Evento
 from simulacion.eventos.evento_fin_lavado import EventoFinLavado
 from simulacion.generador_variables_aleatorias import GestorVariablesAleatorias
@@ -19,16 +18,16 @@ class EventoLlegada(Evento):
         self._auto = None
         self._generador = None
         self._termino_anticipado = False
+        self._cliente_perdido = False
 
     def _ejecutar(self, motor):
         self._fila_anterior = motor.fila_actual
         self.fila_actual = self._copiar_fila(self._fila_anterior)
-        self.fila_actual.iteracion = self._fila_anterior.iteracion + 1
-        self.fila_actual.hora_simulada = self.tiempo
-        self.fila_actual.evento_simulado = self.nombre
+        self._preparar_fila(self.fila_actual, self._fila_anterior)
 
         if self.tiempo.time() >= time(21, 0, 0):
             self.fila_actual.accionLlegada = "Fuera de horario"
+            self.fila_actual.tiempoLlegada = None
             self._termino_anticipado = True
             return
 
@@ -43,7 +42,7 @@ class EventoLlegada(Evento):
 
         if self._fila_anterior.colaLavado.esta_llena():
             self.fila_actual.accionLlegada = f"A{id} se retira"
-            self.fila_actual.clientesPerdidos = self._fila_anterior.clientesPerdidos + 1
+            self._cliente_perdido = True
             self._termino_anticipado = True
             return
 
@@ -61,12 +60,14 @@ class EventoLlegada(Evento):
             self.fila_actual.colaLavado.encolar_auto(self._auto)
         else:
             self._auto.estado = "EnLavado"
-            self._fila_anterior.tunel.ocupar(self._auto)
+            self.fila_actual.tunel.ocupar(self._auto)
             self.fila_actual.rndLavado = motor.generarRND()
             self.fila_actual.tiempoLavado = self.tiempo + self._generador.tiempoLavado(self.fila_actual.rndLavado)
             motor.calendario.agregar_evento(EventoFinLavado(self.fila_actual.tiempoLavado))
 
     def _actualizar_estadisticas(self, motor):
+        if self._cliente_perdido:
+            motor.registro.registrar_cliente_perdido(self.fila_actual)
         motor.agregar_fila_vector(self.fila_actual)
 
     def _copiar_fila(self, fila_anterior):
@@ -89,21 +90,4 @@ class EventoLlegada(Evento):
         se mantendrán los mismos valores. Esto ahorrará if else y hará el código más limpio.
         """
 
-        fila = FilaVectorEstado()
-
-        fila.tiempoLavado = fila_anterior.tiempoLavado
-        fila.tiempoAspirado1 = fila_anterior.tiempoAspirado1
-        fila.tiempoAspirado2 = fila_anterior.tiempoAspirado2
-
-        fila.contadorAutos = fila_anterior.contadorAutos
-        fila.colaLavado = fila_anterior.colaLavado
-
-        fila.clientesPerdidos = fila_anterior.clientesPerdidos
-        fila.tiempoHorasExtras = fila_anterior.tiempoHorasExtras
-        fila.tiempoTunelBloqueado = fila_anterior.tiempoTunelBloqueado
-
-        fila.tunel = fila_anterior.tunel
-        fila.puestoAspirado1 = fila_anterior.puestoAspirado1
-        fila.puestoAspirado2 = fila_anterior.puestoAspirado2
-
-        return fila
+        return super()._copiar_fila(fila_anterior)

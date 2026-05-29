@@ -35,6 +35,5 @@ class ColaLavado:
         return len(self.autos)
 
     def como_dict(self):
-        while (i = 0; i < self.contar(); i++) {
+        for i in range(self.contar()):
             self.autos[i].como_dict()
-        }

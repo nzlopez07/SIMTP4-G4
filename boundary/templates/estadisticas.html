@@ -23,8 +23,8 @@
         <path d="M3 9h18M9 21V9"/>
       </svg>
     </div>
-    <span class="stat-value">{{ estadisticas.cola_maxima }}</span>
-    <span class="stat-label">Cola máxima</span>
+    <span class="stat-value">{{ estadisticas.jornadas_simuladas }}</span>
+    <span class="stat-label">Jornadas simuladas</span>
   </div>
 
   <div class="stat-card stat-card--danger">
@@ -50,7 +50,7 @@
     </div>
     <span class="stat-value">{{ estadisticas.horas_extras_minutos }} min</span> 
 
-    <span class="stat-label">Horas extras</span>
+    <span class="stat-label">Prom. horas extras</span>
   </div>
 
   <div class="stat-card {% if estadisticas.porcentaje_tunel_bloqueado > 20 %}stat-card--warning{% endif %}">

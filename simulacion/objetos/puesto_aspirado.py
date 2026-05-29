@@ -1,3 +1,4 @@
+from simulacion.objetos.auto import Auto 
 class PuestoAspirado:
     """Recurso que representa un puesto de aspirado."""
     def __init__(self, id):

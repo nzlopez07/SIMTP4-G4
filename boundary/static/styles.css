@@ -488,7 +488,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.8rem;
-    min-width: 1300px;
+    min-width: 2100px;
 }
 
 .results-table th,
@@ -545,8 +545,43 @@ body {
     transition: background 0.1s;
 }
 
+.results-table tbody tr.row-nuevo-dia {
+    background: #E7F7EE;
+    box-shadow: inset 4px 0 0 #229954;
+}
+
+.results-table tbody tr.row-nuevo-dia:hover {
+    background: #DDF2E7;
+}
+
 .results-table td {
     color: var(--gris-oscuro);
+}
+
+.queue-cell {
+    min-width: 220px;
+    max-width: 320px;
+}
+
+.queue-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    white-space: normal;
+}
+
+.queue-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #F3F7FB;
+    border: 1px solid rgba(24, 95, 165, 0.16);
+    color: var(--azul-oscuro);
+    font-size: 0.72rem;
+    line-height: 1.2;
 }
 
 /* Celdas sin valor (None) */
